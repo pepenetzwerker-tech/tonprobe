@@ -168,7 +168,7 @@ td:first-child,th:first-child{padding-left:0}
 
 <section class="panel" id="resultPanel" hidden>
   <table>
-    <thead><tr><th>Ton</th><th>Abw.</th><th>Streuung</th><th>bis stabil</th><th>Dauer</th><th></th></tr></thead>
+    <thead><tr><th>Ton</th><th>Abw.</th><th>Streuung</th><th>bis stabil</th><th>Dauer</th><th>Pegel dB</th><th></th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
   <div class="summary" id="summary"></div>
@@ -180,7 +180,7 @@ td:first-child,th:first-child{padding-left:0}
     <button id="clearFree">Liste leeren</button>
   </div>
   <table>
-    <thead><tr><th>#</th><th>Ton</th><th>Abw.</th><th>Streuung</th><th>Dauer</th></tr></thead>
+    <thead><tr><th>#</th><th>Ton</th><th>Abw.</th><th>Streuung</th><th>Dauer</th><th>Pegel dB</th></tr></thead>
     <tbody id="freeRows"></tbody>
   </table>
   <div class="summary" id="freeSummary"></div>
@@ -200,6 +200,8 @@ const midiToFreq=m=>440*Math.pow(2,(m-69)/12);
 const freqToMidi=f=>69+12*Math.log2(f/440);
 const noteName=m=>{const n=Math.round(m);return NAMES[((n%12)+12)%12]+(Math.floor(n/12)-1);};
 const signed=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'±')+Math.abs(r);};
+/* Pegel in dBFS. Nur innerhalb eines Geräts und gleichen Abstands vergleichbar. */
+const dbfs=r=>20*Math.log10(Math.max(r,1e-5));
 
 const el=id=>document.getElementById(id);
 const fromSel=el('from'), toSel=el('to');
@@ -344,9 +346,9 @@ function tick(){
   trace.push({t:now, c:cents, rms});
   while(trace.length && now-trace[0].t>7000) trace.shift();
   if(collecting && cents!==null && Math.abs(cents)<700){
-    collecting.samples.push({t:now-collecting.t0, c:cents});
+    collecting.samples.push({t:now-collecting.t0, c:cents, r:rms});
   }
-  if(freeMode) feedFree(now, midi===null?null:midi*100, oct);
+  if(freeMode) feedFree(now, midi===null?null:midi*100, oct, rms);
 }
 
 function show(midi,cents,f){
@@ -469,7 +471,7 @@ function record(m,samples){
   const tr=document.createElement('tr');
   if(samples.length<12){
     results.push({m,ok:false,empty:true});
-    tr.innerHTML='<td>'+noteName(m)+'</td><td colspan="4" style="color:var(--fg-dim)">nichts gehört</td>'+
+    tr.innerHTML='<td>'+noteName(m)+'</td><td colspan="5" style="color:var(--fg-dim)">nichts gehört</td>'+
       '<td><span class="tag off">—</span></td>';
     el('rows').appendChild(tr); return;
   }
@@ -483,14 +485,16 @@ function record(m,samples){
     if(win.length>=7 && win.every(s=>Math.abs(s.c-dev)<25)){ stable=t0; break; }
   }
   const dur=(samples[samples.length-1].t-samples[0].t)/1000;
+  const db=dbfs(median(samples.map(s=>s.r)));
   const hit = stable!==null && stable<500 && Math.abs(dev)<25;
-  results.push({m,dev,spread,stable,dur,ok:hit});
+  results.push({m,dev,spread,stable,dur,db,ok:hit});
   tr.innerHTML=
     '<td>'+noteName(m)+'</td>'+
     '<td>'+signed(dev)+'</td>'+
     '<td>'+spread.toFixed(0)+'</td>'+
     '<td>'+(stable===null?'—':(stable/1000).toFixed(1)+' s')+'</td>'+
     '<td>'+dur.toFixed(1)+' s</td>'+
+    '<td>'+db.toFixed(0)+'</td>'+
     '<td><span class="tag '+(hit?'ok':'off')+'">'+(hit?'sofort':'gesucht')+'</span></td>';
   el('rows').appendChild(tr);
   tr.scrollIntoView({block:'nearest'});
@@ -506,21 +510,21 @@ const freeRes=[];
    Die Tonhöhenprüfung unten bleibt das eigentliche Tor. */
 const F_TOL=45, F_MIN=300, F_GAP=300;   // Cent, ms, ms
 
-function feedFree(t,ac,oct){
+function feedFree(t,ac,oct,rms){
   if(ac===null){
     if(seg && t-seg.last>F_GAP) closeSeg();
     return;
   }
   if(seg && t-seg.last>F_GAP) closeSeg();
-  if(!seg){ seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0, oct:oct?1:0}; return; }
+  if(!seg){ seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0, oct:oct?1:0, r:[rms]}; return; }
   if(Math.abs(ac-seg.sum/seg.pts.length)>F_TOL){
     closeSeg();
-    seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0, oct:oct?1:0};
+    seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0, oct:oct?1:0, r:[rms]};
     return;
   }
   const lk=t-seg.last;                 // Aussetzer, der die Tonhöhe nicht verlassen hat
   if(lk>80){ seg.gap+=lk; seg.breaks++; }
-  seg.pts.push({t,c:ac}); seg.sum+=ac; seg.last=t; if(oct) seg.oct++;
+  seg.pts.push({t,c:ac}); seg.sum+=ac; seg.last=t; seg.r.push(rms); if(oct) seg.oct++;
 }
 
 function closeSeg(){
@@ -530,11 +534,11 @@ function closeSeg(){
   if(dur<F_MIN || s.pts.length<8) return;
   const cs=s.pts.map(p=>p.c);
   const med=median(cs), m=Math.round(med/100);
-  freeRow(m, med-m*100, sd(cs), dur/1000, s.breaks, s.oct/s.pts.length);
+  freeRow(m, med-m*100, sd(cs), dur/1000, s.breaks, s.oct/s.pts.length, dbfs(median(s.r)));
 }
 
-function freeRow(m,dev,spread,dur,breaks,octShare){
-  freeRes.push({m,dev,spread,dur,breaks,octShare});
+function freeRow(m,dev,spread,dur,breaks,octShare,db){
+  freeRes.push({m,dev,spread,dur,breaks,octShare,db});
   const tr=document.createElement('tr');
   const a=Math.abs(dev);
   const col=a<10?'var(--ok)':a<25?'var(--near)':'var(--off)';
@@ -547,7 +551,8 @@ function freeRow(m,dev,spread,dur,breaks,octShare){
       ' style="color:var(--near)"> 8\u1d5b\u1d43</span>':'')+'</td>'+
     '<td style="color:'+col+'">'+signed(dev)+'</td>'+
     '<td>'+spread.toFixed(0)+'</td>'+
-    '<td>'+dur.toFixed(1)+' s'+mark+'</td>';
+    '<td>'+dur.toFixed(1)+' s'+mark+'</td>'+
+    '<td>'+db.toFixed(0)+'</td>';
   el('freeRows').appendChild(tr);
   tr.scrollIntoView({block:'nearest'});
   freeSummary();
@@ -561,6 +566,7 @@ function freeSummary(){
     stat(median(freeRes.map(r=>Math.abs(r.dev))).toFixed(0)+' ct','Abweichung (Median)')+
     stat(median(freeRes.map(r=>r.spread)).toFixed(0)+' ct','Streuung (Median)')+
     stat(median(freeRes.map(r=>r.dur)).toFixed(1)+' s','Dauer (Median)')+
+    stat(median(freeRes.map(r=>r.db).filter(v=>isFinite(v))).toFixed(0)+' dB','Pegel (Median)')+
     stat(noteName(Math.min(...ms))+'–'+noteName(Math.max(...ms)),'Umfang');
 }
 
@@ -596,7 +602,8 @@ function summarise(){
     stat(hits+' / '+good.length,'sofort getroffen')+
     stat(median(devs).toFixed(0)+' ct','Abweichung (Median)')+
     stat(median(sps).toFixed(0)+' ct','Streuung im Ton')+
-    stat(st.length?median(st).toFixed(1)+' s':'—','bis stabil');
+    stat(st.length?median(st).toFixed(1)+' s':'—','bis stabil')+
+    stat(median(good.map(r=>r.db).filter(v=>isFinite(v))).toFixed(0)+' dB','Pegel');
 }
 const stat=(v,l)=>'<div class="stat"><b>'+v+'</b><span>'+l+'</span></div>';
 </script>

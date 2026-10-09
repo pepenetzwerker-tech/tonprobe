@@ -58,3 +58,17 @@ falsch liegt.
 
 Betrifft die Korrektur mehr als 15 % der Rahmen eines Tons, steht in der Spalte Ton die Marke
 `8ᵛᵃ`. Die Zeile ist dann zwar korrigiert, aber mit Vorbehalt zu lesen.
+
+## Pegel
+
+Beide Betriebsarten protokollieren den Pegel in dBFS, also bezogen auf die Vollaussteuerung des
+Mikrofons. Null wäre Übersteuerung, −10 ist laut, −30 ist leise.
+
+Der Wert ist **nur innerhalb eines Geräts und bei gleichem Abstand zum Mikrofon vergleichbar.**
+Telefon und Rechner haben unterschiedliche Empfindlichkeit und Vorverstärkung, und ein Schritt
+näher an das Mikrofon ändert den Pegel stärker als lauteres Singen. Für den Vergleich zweier
+Sitzungen also: dasselbe Gerät, derselbe Abstand.
+
+Wozu der Wert gut ist: Tonhöhe und Lautstärke hängen zusammen. Mehr Atemdruck hebt den Grundton
+um einige Cent pro Dezibel, und die Volldecke braucht Druck, um überhaupt zu tragen. Eine leise
+Sitzung ist deshalb nicht dieselbe Messung wie eine laute, auch wenn die Cent-Werte gleich aussehen.
