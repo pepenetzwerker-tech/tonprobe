@@ -488,7 +488,10 @@ function record(m,samples){
    bleibt. Springt sie heraus oder bricht die Stimme ab, wird der Ton geschlossen. */
 let freeMode=false, seg=null;
 const freeRes=[];
-const F_TOL=45, F_MIN=300, F_GAP=140;   // Cent, ms, ms
+/* F_GAP: eine Lücke bis hierher beendet den Ton nicht — setzt die Stimme danach
+   innerhalb von F_TOL wieder ein, ist es derselbe Ton und nicht der nächste.
+   Die Tonhöhenprüfung unten bleibt das eigentliche Tor. */
+const F_TOL=45, F_MIN=300, F_GAP=300;   // Cent, ms, ms
 
 function feedFree(t,ac){
   if(ac===null){
@@ -496,36 +499,40 @@ function feedFree(t,ac){
     return;
   }
   if(seg && t-seg.last>F_GAP) closeSeg();
-  if(!seg){ seg={pts:[{t,c:ac}], last:t, sum:ac}; return; }
+  if(!seg){ seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0}; return; }
   if(Math.abs(ac-seg.sum/seg.pts.length)>F_TOL){
     closeSeg();
-    seg={pts:[{t,c:ac}], last:t, sum:ac};
+    seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0};
     return;
   }
+  const lk=t-seg.last;                 // Aussetzer, der die Tonhöhe nicht verlassen hat
+  if(lk>80){ seg.gap+=lk; seg.breaks++; }
   seg.pts.push({t,c:ac}); seg.sum+=ac; seg.last=t;
 }
 
 function closeSeg(){
   const s=seg; seg=null;
   if(!s) return;
-  const dur=s.last-s.pts[0].t;
+  const dur=s.last-s.pts[0].t-s.gap;   // Lücken zählen nicht als Klang
   if(dur<F_MIN || s.pts.length<8) return;
   const cs=s.pts.map(p=>p.c);
   const med=median(cs), m=Math.round(med/100);
-  freeRow(m, med-m*100, sd(cs), dur/1000);
+  freeRow(m, med-m*100, sd(cs), dur/1000, s.breaks);
 }
 
-function freeRow(m,dev,spread,dur){
-  freeRes.push({m,dev,spread,dur});
+function freeRow(m,dev,spread,dur,breaks){
+  freeRes.push({m,dev,spread,dur,breaks});
   const tr=document.createElement('tr');
   const a=Math.abs(dev);
   const col=a<10?'var(--ok)':a<25?'var(--near)':'var(--off)';
+  const mark=breaks? '<span title="'+breaks+' kurze Aussetzer, als derselbe Ton gezählt"'+
+    ' style="color:var(--fg-dim)"> ·'+breaks+'</span>' : '';
   tr.innerHTML=
     '<td style="color:var(--fg-dim)">'+freeRes.length+'</td>'+
     '<td>'+noteName(m)+'</td>'+
     '<td style="color:'+col+'">'+signed(dev)+'</td>'+
     '<td>'+spread.toFixed(0)+'</td>'+
-    '<td>'+dur.toFixed(1)+' s</td>';
+    '<td>'+dur.toFixed(1)+' s'+mark+'</td>';
   el('freeRows').appendChild(tr);
   tr.scrollIntoView({block:'nearest'});
   freeSummary();

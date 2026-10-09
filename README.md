@@ -21,8 +21,10 @@ Notenname, Abweichung zum nächstliegenden Halbton, Streuung, Dauer.
 Tonhöhe über eine YIN-artige Differenzfunktion mit kumulativer Mittelwertnormierung und
 Parabel-Interpolation, Fenster 4096 Samples, Suchbereich 70–900 Hz.
 
-Ein Ton gilt als laufend, solange die Tonhöhe im Band von 45 Cent um ihren eigenen Mittelwert bleibt;
-bei Sprung oder Abbruch über 140 ms wird er geschlossen. Mindestdauer 0,3 s.
+Ein Ton gilt als laufend, solange die Tonhöhe im Band von 45 Cent um ihren eigenen Mittelwert bleibt.
+Verlässt sie das Band, beginnt der nächste Ton. Eine Lücke ohne Klang beendet ihn erst nach 300 ms —
+setzt die Stimme vorher innerhalb des Bandes wieder ein, ist es derselbe Ton. Solche Aussetzer werden
+aus der Dauer herausgerechnet und in der Spalte Dauer als `·n` vermerkt. Mindestdauer 0,3 s.
 
 „Zeit bis stabil" ist der Beginn des ersten 300-ms-Fensters, das vollständig innerhalb ±25 Cent um den
 Median liegt. „Sofort getroffen" heißt: unter 500 ms stabil und Median unter 25 Cent Abweichung.
