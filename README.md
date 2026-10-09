@@ -33,3 +33,10 @@ Median liegt. „Sofort getroffen" heißt: unter 500 ms stabil und Median unter 
 - Unter etwa 90 Hz passen nur wenige Schwingungen ins Analysefenster, die Werte werden ungenauer.
 - Beim Gleiten entsteht keine brauchbare Zeile: schnell fällt unter die Mindestdauer, langsam zerfällt in Stufen.
 - Ohne Kopfhörer hört das Mikrofon den Referenzton mit.
+
+## Wenn das Mikrofon am Telefon nicht geht
+
+Die Seite benennt die Ursache selbst. `NotAllowedError` heißt blockiert, und das sitzt an zwei
+getrennten Stellen: in Android unter Einstellungen → Apps → Chrome → Berechtigungen → Mikrofon,
+und in Chrome selbst beim Schlosssymbol in der Adressleiste unter Berechtigungen. Ein einmal
+abgelehnter Zugriff wird für diese Adresse gemerkt und nicht neu gefragt.

@@ -1,0 +1,14 @@
+{
+  "name": "Tonprobe",
+  "short_name": "Tonprobe",
+  "description": "Intonationsmessung für Gesangsübung",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f5f3",
+  "theme_color": "#1f6f68",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Tonprobe">
+  <rect width="512" height="512" rx="96" fill="#1f6f68"/>
+  <g fill="none" stroke="#f4f5f3" stroke-width="22" stroke-linecap="round">
+    <line x1="88" y1="256" x2="424" y2="256" opacity=".35"/>
+    <path d="M88 320 C 150 320, 170 192, 232 192 S 314 320, 376 320 L 424 320" stroke-linejoin="round"/>
+  </g>
+  <circle cx="232" cy="192" r="30" fill="#f4f5f3"/>
+</svg>

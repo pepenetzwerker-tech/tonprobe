@@ -4,6 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Tonprobe</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#1f6f68">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -93,7 +97,8 @@ td:first-child,th:first-child{padding-left:0}
 .stat span{font-size:12px;color:var(--fg-dim)}
 .hint{font-size:13px;color:var(--fg-dim)}
 .hint code{font-family:var(--mono);font-size:12px;background:var(--line-soft);padding:1px 5px;border-radius:4px}
-.err{color:var(--off);font-size:13px}
+.err{color:var(--off);font-size:13px;line-height:1.55;margin-top:6px}
+.err strong{display:block;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -251,8 +256,43 @@ function detectPitch(b,sr){
 }
 
 /* ---------- Mikrofon ---------- */
+/* Warum der Zugriff scheitert, ist an e.name ablesbar — die Ursachen liegen
+   an völlig verschiedenen Stellen, also wird sie benannt statt verschwiegen. */
+function micError(e){
+  const n=e && e.name || '';
+  const sec = window.isSecureContext;
+  let txt, fix;
+  if(!sec){
+    txt='Die Seite läuft nicht in einem sicheren Kontext ('+location.protocol+').';
+    fix='Mikrofon gibt es nur über https:// oder localhost.';
+  }else if(n==='NotAllowedError' || n==='PermissionDeniedError'){
+    txt='Der Zugriff ist blockiert (NotAllowedError) — die Seite darf nicht fragen.';
+    fix='Zwei Stellen prüfen. Erstens das Betriebssystem: Einstellungen → Apps → Chrome → '+
+        'Berechtigungen → Mikrofon → erlauben. Zweitens diese Seite: in Chrome auf das '+
+        'Schloss- oder Reglersymbol links in der Adressleiste → Berechtigungen → Mikrofon → '+
+        'zulassen. Ein einmal abgelehnter Zugriff wird gemerkt und nicht neu gefragt.';
+  }else if(n==='NotFoundError' || n==='DevicesNotFoundError'){
+    txt='Kein Mikrofon gefunden (NotFoundError).';
+    fix='Ein angestecktes Headset abziehen und erneut versuchen, oder umgekehrt.';
+  }else if(n==='NotReadableError' || n==='TrackStartError'){
+    txt='Das Mikrofon ist belegt (NotReadableError).';
+    fix='Eine andere App hält es — Telefonie, Sprachaufnahme, Videoanruf. Die schließen.';
+  }else if(n==='OverconstrainedError'){
+    txt='Die Aufnahmeeinstellungen werden nicht unterstützt (OverconstrainedError).';
+    fix='Sag mir das, dann nehme ich die Vorgaben heraus.';
+  }else{
+    txt='Mikrofon nicht verfügbar'+(n?' ('+n+')':'')+': '+(e&&e.message||'unbekannt');
+    fix='Sicherer Kontext: '+(sec?'ja':'nein')+'. Protokoll: '+location.protocol;
+  }
+  el('err').hidden=false;
+  el('err').innerHTML='<strong>'+txt+'</strong><br>'+fix;
+}
+
 el('mic').addEventListener('click',async()=>{
   try{
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+      micError({name:'Unsupported',message:'getUserMedia fehlt'}); return;
+    }
     stream=await navigator.mediaDevices.getUserMedia({audio:{
       echoCancellation:false,noiseSuppression:false,autoGainControl:false}});
     ac=ac||new (window.AudioContext||window.webkitAudioContext)();
@@ -270,8 +310,7 @@ el('mic').addEventListener('click',async()=>{
     timer=setInterval(tick,30);
     draw();
   }catch(e){
-    el('err').hidden=false;
-    el('err').textContent='Kein Mikrofonzugriff: '+e.message+' — die Seite über localhost öffnen (siehe unten).';
+    micError(e);
   }
 });
 
