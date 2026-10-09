@@ -246,13 +246,26 @@ function detectPitch(b,sr){
     if(c[best]>0.5) return {f:-1,rms};
     tau=best;
   }
+  /* Oktavprüfung. Ein Grundton hat auch bei der doppelten Periode ein Minimum,
+     deshalb ist dessen Vorhandensein kein Kriterium — verglichen wird die Güte.
+     Erklärt die doppelte Periode den Rahmen deutlich besser, war die erkannte
+     Tonhöhe eine Oktave zu hoch. Der Abstand von 0.03 hält echte hohe Töne
+     unangetastet, bei denen beide Minima gleich tief sind. */
+  let oct=false;
+  const t2=2*tau;
+  if(t2+1<maxLag && sr/t2>=70){
+    const c1=Math.min(c[tau], tau>minLag?c[tau-1]:1, c[tau+1]);
+    let lo=t2;
+    for(let k=t2-3;k<=t2+3;k++) if(k>minLag && k<maxLag && c[k]<c[lo]) lo=k;
+    if(c[lo]<0.20 && c[lo]<c1-0.03){ tau=lo; oct=true; }
+  }
   let better=tau;
   if(tau>minLag && tau+1<maxLag){
     const s0=c[tau-1], s1=c[tau], s2=c[tau+1];
     const den=2*(2*s1-s0-s2);
     if(den!==0) better=tau+(s2-s0)/den;
   }
-  return {f:sr/better, rms};
+  return {f:sr/better, rms, oct};
 }
 
 /* ---------- Mikrofon ---------- */
@@ -317,7 +330,7 @@ el('mic').addEventListener('click',async()=>{
 function tick(){
   if(!analyser) return;
   analyser.getFloatTimeDomainData(buf);
-  const {f,rms}=detectPitch(buf,ac.sampleRate);
+  const {f,rms,oct}=detectPitch(buf,ac.sampleRate);
   const now=performance.now();
   let cents=null, midi=null;
   if(f>0 && f<900){
@@ -333,7 +346,7 @@ function tick(){
   if(collecting && cents!==null && Math.abs(cents)<700){
     collecting.samples.push({t:now-collecting.t0, c:cents});
   }
-  if(freeMode) feedFree(now, midi===null?null:midi*100);
+  if(freeMode) feedFree(now, midi===null?null:midi*100, oct);
 }
 
 function show(midi,cents,f){
@@ -493,21 +506,21 @@ const freeRes=[];
    Die Tonhöhenprüfung unten bleibt das eigentliche Tor. */
 const F_TOL=45, F_MIN=300, F_GAP=300;   // Cent, ms, ms
 
-function feedFree(t,ac){
+function feedFree(t,ac,oct){
   if(ac===null){
     if(seg && t-seg.last>F_GAP) closeSeg();
     return;
   }
   if(seg && t-seg.last>F_GAP) closeSeg();
-  if(!seg){ seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0}; return; }
+  if(!seg){ seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0, oct:oct?1:0}; return; }
   if(Math.abs(ac-seg.sum/seg.pts.length)>F_TOL){
     closeSeg();
-    seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0};
+    seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0, oct:oct?1:0};
     return;
   }
   const lk=t-seg.last;                 // Aussetzer, der die Tonhöhe nicht verlassen hat
   if(lk>80){ seg.gap+=lk; seg.breaks++; }
-  seg.pts.push({t,c:ac}); seg.sum+=ac; seg.last=t;
+  seg.pts.push({t,c:ac}); seg.sum+=ac; seg.last=t; if(oct) seg.oct++;
 }
 
 function closeSeg(){
@@ -517,11 +530,11 @@ function closeSeg(){
   if(dur<F_MIN || s.pts.length<8) return;
   const cs=s.pts.map(p=>p.c);
   const med=median(cs), m=Math.round(med/100);
-  freeRow(m, med-m*100, sd(cs), dur/1000, s.breaks);
+  freeRow(m, med-m*100, sd(cs), dur/1000, s.breaks, s.oct/s.pts.length);
 }
 
-function freeRow(m,dev,spread,dur,breaks){
-  freeRes.push({m,dev,spread,dur,breaks});
+function freeRow(m,dev,spread,dur,breaks,octShare){
+  freeRes.push({m,dev,spread,dur,breaks,octShare});
   const tr=document.createElement('tr');
   const a=Math.abs(dev);
   const col=a<10?'var(--ok)':a<25?'var(--near)':'var(--off)';
@@ -529,7 +542,9 @@ function freeRow(m,dev,spread,dur,breaks){
     ' style="color:var(--fg-dim)"> ·'+breaks+'</span>' : '';
   tr.innerHTML=
     '<td style="color:var(--fg-dim)">'+freeRes.length+'</td>'+
-    '<td>'+noteName(m)+'</td>'+
+    '<td>'+noteName(m)+(octShare>0.15?'<span title="'+Math.round(octShare*100)+
+      ' % der Rahmen waren eine Oktave zu hoch erkannt und wurden korrigiert — diese Zeile mit Vorbehalt"'+
+      ' style="color:var(--near)"> 8\u1d5b\u1d43</span>':'')+'</td>'+
     '<td style="color:'+col+'">'+signed(dev)+'</td>'+
     '<td>'+spread.toFixed(0)+'</td>'+
     '<td>'+dur.toFixed(1)+' s'+mark+'</td>';

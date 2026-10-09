@@ -42,3 +42,19 @@ Die Seite benennt die Ursache selbst. `NotAllowedError` heißt blockiert, und da
 getrennten Stellen: in Android unter Einstellungen → Apps → Chrome → Berechtigungen → Mikrofon,
 und in Chrome selbst beim Schlosssymbol in der Adressleiste unter Berechtigungen. Ein einmal
 abgelehnter Zugriff wird für diese Adresse gemerkt und nicht neu gefragt.
+
+## Oktavprüfung
+
+Tonhöhenverfolgung kann eine Oktave zu hoch greifen, wenn der Grundton schwach ist oder die
+Stimme knarrt. Bei einem echten Grundton liegt auch bei der doppelten Periode ein Minimum der
+Differenzfunktion, dessen Vorhandensein ist also kein Kriterium — verglichen wird die Güte.
+Erklärt die doppelte Periode den Rahmen deutlich besser (Abstand 0,03 und selbst unter 0,20),
+wird die Tonhöhe halbiert.
+
+Der Abstand hält echte hohe Töne unangetastet, bei denen beide Minima gleich tief sind. Geprüft
+gegen volle und dünne Klänge von 110 bis 523 Hz, gegen fehlende Grundtöne und gegen
+Periodenverdopplung: die Korrektur greift nur im Grenzfall, in dem die rohe Erkennung tatsächlich
+falsch liegt.
+
+Betrifft die Korrektur mehr als 15 % der Rahmen eines Tons, steht in der Spalte Ton die Marke
+`8ᵛᵃ`. Die Zeile ist dann zwar korrigiert, aber mit Vorbehalt zu lesen.
