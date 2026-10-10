@@ -155,6 +155,12 @@ td:first-child,th:first-child{padding-left:0}
         <option value="5">5 s</option>
       </select>
     </label>
+    <label>Vorgespielt
+      <select id="cue">
+        <option value="base" selected>nur der Grundton</option>
+        <option value="all">die ganze Figur</option>
+      </select>
+    </label>
     <label>Figur
       <select id="shape">
         <option value="0">Einzelton</option>
@@ -739,11 +745,18 @@ async function runLine(){
     const tgt=degrees.map(d=>(base+d)*100);
     el('lineRows').innerHTML=''; el('lineSummary').innerHTML='';
     el('lineVerdict').textContent=''; el('lineNote').textContent='';
-    phase('Figur hören: '+degrees.map(d=>noteName(base+d)).join(' ' ),false);
-    for(const d of degrees){
-      if(!running) break;
-      playTone(midiToFreq(base+d),0.5);
-      await sleep(600);
+    const cue=el('cue').value;
+    if(cue==='all'){
+      phase('Figur hören: '+degrees.map(d=>noteName(base+d)).join(' '),false);
+      for(const d of degrees){
+        if(!running) break;
+        playTone(midiToFreq(base+d),0.5);
+        await sleep(600);
+      }
+    }else{
+      phase('Grundton hören: '+noteName(base+degrees[0])+' — die Figur dann selbst',false);
+      playTone(midiToFreq(base+degrees[0]),1.4);
+      await sleep(1600);
     }
     if(!running) break;
     await sleep(700);

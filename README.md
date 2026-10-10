@@ -145,6 +145,11 @@ Der Übungsmodus misst Ton für Ton mit Referenzton und Pause dazwischen — gen
 musikalisch. Dieser Modus spielt die Figur als Ganzes vor und misst eine durchgesungene Linie
 gegen dieselbe Vorgabe.
 
+**Vorgespielt** wählt, was vor dem Singen zu hören ist. *Nur der Grundton* gibt die Lage und sonst
+nichts — die Intervalle müssen aus der eigenen Vorstellung kommen. *Die ganze Figur* spielt sie
+vorher durch, dann ist es Nachsingen. Die erste Einstellung ist die schwerere und die, auf die es
+hinausläuft.
+
 **Verfahren.** Jeder Sollton bekommt einen zusammenhängenden Abschnitt der Aufnahme von mindestens
 150 ms (5 Messrahmen). Welche Abschnitte, entscheidet eine dynamische Zeitverzerrung über alle
 Gesamtversätze von −350 bis +350 Cent in 10-Cent-Schritten; gewählt wird der Versatz mit den
