@@ -431,7 +431,7 @@ function playTone(freq,dur){
   const t0=ac.currentTime;
   const g=ac.createGain(); g.connect(ac.destination);
   g.gain.setValueAtTime(0.0001,t0);
-  g.gain.exponentialRampToValueAtTime(0.28,t0+0.015);
+  g.gain.exponentialRampToValueAtTime(0.45,t0+0.015);
   g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
   [1,2,3,4,5].forEach(hn=>{
     const o=ac.createOscillator(); o.type='sine'; o.frequency.value=freq*hn;
@@ -791,32 +791,34 @@ function showLine(obs,tgt,base){
     N.textContent='Die Aufnahme ließ sich der Figur nicht zuordnen.';
     return;
   }
-  if(!res.fits){
-    V.style.color='var(--off)';
-    V.textContent='folgt der Figur nicht';
-    const own=ownSteps(obs);
+  const own=ownSteps(obs);
+  if(res.fits){
+    V.style.color='var(--ok)'; V.textContent='folgt der Figur';
+    N.innerHTML='Abweichung ist der Abstand zur Vorgabe. Intervall ist derselbe Wert, '+
+      'nachdem der Gesamtversatz abgezogen wurde — er misst die Figur, nicht die Lage. '+
+      'Anlauf vergleicht den Beginn des Tons mit seiner Mitte: negativ heißt, du bist '+
+      'von unten hineingerutscht.';
+  }else{
+    /* Zahlen trotzdem zeigen, aber benennen, warum ihnen nicht zu trauen ist.
+       Die Zuordnung kann falsch sein — dann messen die Zeilen nicht, was sie behaupten. */
+    V.style.color='var(--off)'; V.textContent='folgt der Figur nicht';
     const soll=tgt.map((t,i)=>i?((tgt[i]-tgt[i-1])/100).toFixed(1):'—');
     const dein=own.map((o,i)=>i?((own[i].m-own[i-1].m)/100).toFixed(1):'—');
-    N.innerHTML='Deshalb keine Einzelwerte — sie wären erfunden. '+
-      'Was die Zuordnung verrät: Restfehler '+Math.round(res.rms)+' ct, '+
-      res.forced+' von '+tgt.length+' Sollnoten mussten erzwungen werden, '+
-      res.messy+' sind in sich zu unruhig für einen gehaltenen Ton.<br>'+
+    N.innerHTML='<strong style="color:var(--off)">Die Zeilen unten mit Vorbehalt lesen.</strong> '+
+      'Die Zuordnung zwischen deiner Linie und den Sollnoten ist unsicher, dann messen die '+
+      'Einzelwerte nicht, was sie behaupten. Woran es liegt: Restfehler '+Math.round(res.rms)+
+      ' ct, '+res.forced+' von '+tgt.length+' Sollnoten auf die Mindestdauer gezwungen, '+
+      res.messy+' in sich zu unruhig für einen gehaltenen Ton.<br>'+
       'Vorgegebene Schritte: <code>'+soll.join('  ')+'</code><br>'+
       'Gesungene Schritte: <code>'+dein.join('  ')+'</code> ('+own.length+' Töne statt '+tgt.length+')';
-    el('lineSummary').innerHTML=
-      stat((res.off>=0?'+':'−')+Math.abs(res.off)+' ct','Gesamtversatz')+
-      stat(Math.round(res.rms)+' ct','Restfehler')+
-      stat(own.length+' / '+tgt.length,'Töne');
-    return;
   }
-  V.style.color='var(--ok)'; V.textContent='folgt der Figur';
-  N.textContent='Abweichung ist der Abstand zur Vorgabe. Intervall ist derselbe Wert, '+
-    'nachdem der Gesamtversatz abgezogen wurde — er misst die Figur, nicht die Lage. '+
-    'Anlauf vergleicht den Beginn des Tons mit seiner Mitte: negativ heißt, du bist von unten hineingerutscht.';
   res.notes.forEach(n=>{
     const tr=document.createElement('tr');
-    const col=v=>Math.abs(v)<15?'var(--ok)':Math.abs(v)<35?'var(--near)':'var(--off)';
-    tr.innerHTML='<td style="color:var(--fg-dim)">'+(n.j+1)+'</td>'+
+    if(!res.fits) tr.style.opacity='.6';
+    const col=v=>res.fits?(Math.abs(v)<15?'var(--ok)':Math.abs(v)<35?'var(--near)':'var(--off)'):'inherit';
+    const flag=(n.n<=KMIN?'<span title="nur die Mindestdauer — Zuordnung erzwungen" style="color:var(--off)"> !</span>':'')
+             +(n.spread>70?'<span title="zu unruhig für einen gehaltenen Ton" style="color:var(--off)"> ~</span>':'');
+    tr.innerHTML='<td style="color:var(--fg-dim)">'+(n.j+1)+flag+'</td>'+
       '<td>'+noteName(n.tgt/100)+'</td>'+
       '<td style="color:'+col(n.abs)+'">'+signed(n.abs)+'</td>'+
       '<td style="color:'+col(n.rel)+'">'+signed(n.rel)+'</td>'+
@@ -831,6 +833,7 @@ function showLine(obs,tgt,base){
     stat(Math.round(median(A))+' ct','Abweichung (Median)')+
     stat(Math.round(median(R))+' ct','Intervall (Median)')+
     stat(Math.round(res.rms)+' ct','Restfehler')+
+    stat(own.length+' / '+tgt.length,'Töne')+
     stat(median(res.notes.map(n=>n.dur)).toFixed(1)+' s','Dauer je Ton');
 }
 

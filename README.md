@@ -174,8 +174,17 @@ folgt. Drei Prüfungen entscheiden, ob die Einzelwerte überhaupt etwas bedeuten
 - höchstens ein Sollton, der nur die Mindestdauer bekommen hat (häufen die sich, wurde die Zuordnung erzwungen)
 - kein Abschnitt mit über 70 Cent Streuung (ein solcher Abschnitt ist kein gehaltener Ton, sondern ein Sammelbecken mehrerer Tonhöhen)
 
-Fällt eine davon durch, werden keine Einzelwerte angezeigt, sondern die gesungenen Schritte neben
-den vorgegebenen. Geprüft gegen: korrekt gesungen, durchgehend 30 Cent zu tief, ein Ton 70 Cent zu
+Fällt eine davon durch, erscheinen die Einzelwerte trotzdem, aber gedämpft und mit der Warnung,
+dass die Zuordnung unsicher ist — dazu die gesungenen Schritte neben den vorgegebenen. Einzelne
+Zeilen tragen Marken: `!` heißt auf die Mindestdauer gezwungen, `~` heißt in sich zu unruhig für
+einen gehaltenen Ton. Zahlen zu verbergen, weil sie unsicher sind, nimmt die Möglichkeit, den
+Fehler selbst zu sehen. Geprüft gegen: korrekt gesungen, durchgehend 30 Cent zu tief, ein Ton 70 Cent zu
 hoch, Tempo von 0,3 bis 1,8 Sekunden je Ton, halbierte Intervalle, anderthalbfache Intervalle,
 Figur verkehrt herum, und eine echte Aufnahme mit acht Tönen gegen sieben Sollnoten. Alle acht
 werden richtig eingeordnet.
+
+## Kopfhörer
+
+Am Telefon leiten Android und iOS die Ausgabe oft auf den Telefonhörer um, sobald eine Seite das
+Mikrofon offen hat. Der Referenzton ist dann da, aber nur am Ohr hörbar. Kopfhörer beheben das und
+verhindern zugleich, dass das Mikrofon den Referenzton mithört und die Messung verfälscht.
