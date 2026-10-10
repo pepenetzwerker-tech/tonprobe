@@ -24,6 +24,9 @@ Figuren, mit den gemessenen Kursfiguren als Vorlage:
 | Terz-Lauf · 1–2–3–2–1 | 0, 2, 4, 2, 0 | A2 H2 C♯3 H2 A2 |
 | Bogen · 1–2–3–4–5–4–3 · wie das a | 0, 2, 4, 5, 7, 5, 4 | A2 H2 C♯3 D3 E3 D3 C♯3 |
 
+**Figur durchsingen** — die Figur wird vorgespielt, dann als zusammenhängende Linie gesungen und
+gegen die Vorgabe abgeglichen. Siehe unten.
+
 **Mitschreiben** — kein Ziel vorgegeben. Die Seite findet die Töne selbst und protokolliert jeden:
 Notenname, Abweichung zum nächstliegenden Halbton, Streuung, Dauer.
 
@@ -135,3 +138,39 @@ und u ging es, weil dort drei Töne mit Pausen dazwischen stehen.
 
 Die absteigende Ganztonfolge bleibt in der Auswahl, trägt aber keinen Vokalnamen mehr: F♯3–E3–D3 aus
 der Aufnahme ist wahrscheinlich der Schluss der langen Figur, nicht die ganze.
+
+## Figur durchsingen
+
+Der Übungsmodus misst Ton für Ton mit Referenzton und Pause dazwischen — genau, aber nicht
+musikalisch. Dieser Modus spielt die Figur als Ganzes vor und misst eine durchgesungene Linie
+gegen dieselbe Vorgabe.
+
+**Verfahren.** Jeder Sollton bekommt einen zusammenhängenden Abschnitt der Aufnahme von mindestens
+150 ms (5 Messrahmen). Welche Abschnitte, entscheidet eine dynamische Zeitverzerrung über alle
+Gesamtversätze von −350 bis +350 Cent in 10-Cent-Schritten; gewählt wird der Versatz mit den
+geringsten Gesamtkosten. Die Zeitachse darf sich dabei beliebig dehnen — gemessen wird die
+Tonhöhe, nicht das Tempo. Ein freies Tempo ist deshalb kein Problem, sondern wird selbst zur
+Messgröße: die Spalte Dauer zeigt, wo gedehnt und wo gedrängt wurde.
+
+Dass die Reihenfolge der Töne bekannt ist, macht das Verfahren der Transkription überlegen: es muss
+nicht geraten werden, welcher Notenwert gemeint war, nur wo der nächste Sollton liegt. Es braucht
+auch keine saubere Trennung in Plateaus — der Grund, warum die siebentönige a-Figur sich nicht
+transkribieren ließ.
+
+**Spalten.** Abweichung ist der Abstand zur Vorgabe. Intervall ist derselbe Wert nach Abzug des
+Gesamtversatzes und misst damit die Figur statt der Lage: wer die ganze Figur 30 Cent zu tief singt,
+hat Abweichung 30 und Intervall 0. Anlauf vergleicht den Beginn eines Tons mit seiner Mitte —
+negativ heißt von unten hineingerutscht.
+
+**Güteprüfung.** Der Abgleich liefert immer ein Ergebnis, auch wenn die Aufnahme der Figur nicht
+folgt. Drei Prüfungen entscheiden, ob die Einzelwerte überhaupt etwas bedeuten:
+
+- quadratisches Mittel der Intervallabweichungen unter 50 Cent (nicht der Median — der versteckt einzelne grobe Fehler)
+- höchstens ein Sollton, der nur die Mindestdauer bekommen hat (häufen die sich, wurde die Zuordnung erzwungen)
+- kein Abschnitt mit über 70 Cent Streuung (ein solcher Abschnitt ist kein gehaltener Ton, sondern ein Sammelbecken mehrerer Tonhöhen)
+
+Fällt eine davon durch, werden keine Einzelwerte angezeigt, sondern die gesungenen Schritte neben
+den vorgegebenen. Geprüft gegen: korrekt gesungen, durchgehend 30 Cent zu tief, ein Ton 70 Cent zu
+hoch, Tempo von 0,3 bis 1,8 Sekunden je Ton, halbierte Intervalle, anderthalbfache Intervalle,
+Figur verkehrt herum, und eine echte Aufnahme mit acht Tönen gegen sieben Sollnoten. Alle acht
+werden richtig eingeordnet.

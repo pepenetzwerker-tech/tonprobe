@@ -137,6 +137,7 @@ td:first-child,th:first-child{padding-left:0}
     <button class="primary" id="mic">Mikrofon einschalten</button>
     <button id="start" disabled>Übung starten</button>
     <button id="stop" disabled>Abbrechen</button>
+    <button id="line" disabled>Figur durchsingen</button>
     <button id="free" disabled style="margin-left:auto">Mitschreiben</button>
   </div>
   <div class="row" style="margin-top:14px">
@@ -188,6 +189,20 @@ td:first-child,th:first-child{padding-left:0}
     <tbody id="freeRows"></tbody>
   </table>
   <div class="summary" id="freeSummary"></div>
+</section>
+
+<section class="panel" id="linePanel" hidden>
+  <div class="row" style="justify-content:space-between;align-items:baseline;margin-bottom:12px">
+    <strong style="font-weight:600;font-size:14px">Abgleich gegen die Vorgabe</strong>
+    <span id="lineVerdict" style="font:500 13px var(--sans)"></span>
+  </div>
+  <canvas id="lineCv" width="1400" height="340"></canvas>
+  <table style="margin-top:16px">
+    <thead><tr><th>#</th><th>Soll</th><th>Abw.</th><th>Intervall</th><th>Streuung</th><th>Dauer</th><th>Anlauf</th></tr></thead>
+    <tbody id="lineRows"></tbody>
+  </table>
+  <div class="summary" id="lineSummary"></div>
+  <p class="hint" id="lineNote" style="margin-bottom:0"></p>
 </section>
 
 <p class="hint">Ohne Übung läuft die Anzeige als Stimmgerät mit. <strong>Mitschreiben</strong> gibt kein Ziel vor:
@@ -324,6 +339,7 @@ el('mic').addEventListener('click',async()=>{
     el('mic').disabled=true; el('mic').textContent='Mikrofon läuft';
     el('start').disabled=false;
     el('free').disabled=false;
+    el('line').disabled=false;
     el('phase').textContent='Stimmgerät läuft. „Übung starten“ gibt Töne vor, „Mitschreiben“ nicht.';
     el('err').hidden=true;
     timer=setInterval(tick,30);
@@ -353,6 +369,7 @@ function tick(){
     collecting.samples.push({t:now-collecting.t0, c:cents, r:rms});
   }
   if(freeMode) feedFree(now, midi===null?null:midi*100, oct, rms);
+  if(lineRec && midi!==null) lineRec.obs.push({t:now-lineRec.t0, ac:midi*100, r:rms});
 }
 
 function show(midi,cents,f){
@@ -430,7 +447,8 @@ function phase(txt,live){
 
 async function runSession(){
   running=true;
-  el('start').disabled=true; el('stop').disabled=false; el('free').disabled=true;
+  el('start').disabled=true; el('stop').disabled=false;
+  el('free').disabled=true; el('line').disabled=true;
   results.length=0; el('rows').innerHTML=''; el('summary').innerHTML='';
   el('resultPanel').hidden=false;
   const lo=+fromSel.value, hi=+toSel.value;
@@ -460,7 +478,8 @@ async function runSession(){
     if(!running) break;
   }
   target=null; running=false;
-  el('start').disabled=false; el('stop').disabled=true; el('free').disabled=false;
+  el('start').disabled=false; el('stop').disabled=true;
+  el('free').disabled=false; el('line').disabled=false;
   phase(results.length?'Durchgang beendet.':'Abgebrochen.',false);
   summarise();
 }
@@ -506,6 +525,7 @@ function record(m,samples){
 /* ---------- Mitschreiben: Töne selbst finden ---------- */
 /* Ein Ton läuft, solange die Tonhöhe im Toleranzband um ihren eigenen Mittelwert
    bleibt. Springt sie heraus oder bricht die Stimme ab, wird der Ton geschlossen. */
+let lineRec=null;
 let freeMode=false, seg=null;
 const freeRes=[];
 /* F_GAP: eine Lücke bis hierher beendet den Ton nicht — setzt die Stimme danach
@@ -587,19 +607,235 @@ function freeSummary(){
     stat(noteName(Math.min(...ms))+'–'+noteName(Math.max(...ms)),'Umfang');
 }
 
+
+/* ---------- Figur durchsingen: Abgleich gegen die Vorgabe ----------
+   Die Figur wird vorgespielt, dann als zusammenhängende Linie gesungen.
+   Jeder Sollton bekommt einen zusammenhängenden Abschnitt der Aufnahme von
+   mindestens KMIN Rahmen. Die Zeitachse darf sich beliebig dehnen — gemessen
+   wird die Tonhöhe, nicht das Tempo. Ohne die Mindestdauer parkt der Abgleich
+   auf einem Ton und huscht mit je einem Rahmen über die anderen; die Zahlen
+   sehen dann brauchbar aus, obwohl die Zuordnung Unsinn ist. */
+const KMIN=5, CAP=700;
+
+function dtwPath(obs,tgt,off){
+  const N=obs.length, M=tgt.length, K=KMIN, INF=Infinity, sz=M*K;
+  let prev=new Float64Array(sz).fill(INF);
+  const back=[];
+  const c=(i,j)=>Math.min(Math.abs(obs[i].ac-off-tgt[j]),CAP);
+  prev[0]=c(0,0);
+  for(let i=1;i<N;i++){
+    const cur=new Float64Array(sz).fill(INF), bi=new Int16Array(sz).fill(-1);
+    for(let j=0;j<M;j++){
+      const ci=c(i,j);
+      for(let r=0;r<K;r++){
+        let bv=INF, bs=-1;
+        if(r>0){ const v=prev[j*K+r-1]; if(v<bv){bv=v;bs=j*K+r-1;} }
+        if(r===K-1){ const v=prev[j*K+K-1]; if(v<bv){bv=v;bs=j*K+K-1;} }
+        if(r===0 && j>0){ const v=prev[(j-1)*K+K-1]; if(v<bv){bv=v;bs=(j-1)*K+K-1;} }
+        if(bv<INF){ cur[j*K+r]=bv+ci; bi[j*K+r]=bs; }
+      }
+    }
+    back.push(bi); prev=cur;
+  }
+  const end=(M-1)*K+K-1;
+  if(!(prev[end]<INF)) return null;
+  const seg=Array.from({length:M},()=>[]);
+  let st=end;
+  for(let i=N-1;i>=0;i--){
+    seg[Math.floor(st/K)].push(i);
+    if(i===0) break;
+    st=back[i-1][st];
+    if(st<0) return null;
+  }
+  seg.forEach(a=>a.reverse());
+  return {cost:prev[end], seg};
+}
+
+function alignLine(obs,tgt){
+  let best=null;
+  for(let off=-350;off<=350;off+=10){
+    const r=dtwPath(obs,tgt,off);
+    if(r && (!best || r.cost<best.cost)) best={off,cost:r.cost,seg:r.seg};
+  }
+  if(!best) return {failed:true};
+  const notes=tgt.map((t,j)=>{
+    const fr=best.seg[j].map(i=>obs[i]), cs=fr.map(f=>f.ac), m=median(cs);
+    return {j, tgt:t, n:fr.length, abs:m-t, rel:m-best.off-t, spread:sd(cs)||0,
+            t0:fr[0].t, t1:fr[fr.length-1].t, dur:(fr[fr.length-1].t-fr[0].t)/1000,
+            scoop:median(cs.slice(0,Math.min(4,cs.length)))-m, frames:fr};
+  });
+  const rel=notes.map(n=>n.rel);
+  const rms=Math.sqrt(rel.reduce((a,v)=>a+v*v,0)/rel.length);
+  const forced=notes.filter(n=>n.n<=KMIN).length;
+  /* Ein Abschnitt mit grosser Streuung ist kein gehaltener Ton, sondern ein
+     Sammelbecken: dort hat der Abgleich mehrere Tonhoehen zusammengeworfen.
+     Der Median der Abweichungen kann dabei zufaellig passen. */
+  const messy=notes.filter(n=>n.spread>70).length;
+  return {off:best.off, notes, rms, forced, messy,
+          fits: rms<50 && forced<=1 && messy===0 && Math.abs(best.off)<340};
+}
+
+/* Was tatsächlich gesungen wurde, unabhängig von der Vorgabe —
+   die Rückfallebene, wenn der Abgleich nicht greift. */
+function ownSteps(obs){
+  const out=[]; let cur=null;
+  for(const p of obs){
+    if(!cur){ cur={s:p.ac,n:1,t0:p.t,t1:p.t}; continue; }
+    if(Math.abs(p.ac-cur.s/cur.n)>45){
+      if(cur.n>=5) out.push({m:cur.s/cur.n, dur:(cur.t1-cur.t0)/1000});
+      cur={s:p.ac,n:1,t0:p.t,t1:p.t};
+    }else{ cur.s+=p.ac; cur.n++; cur.t1=p.t; }
+  }
+  if(cur && cur.n>=5) out.push({m:cur.s/cur.n, dur:(cur.t1-cur.t0)/1000});
+  return out;
+}
+
+function drawLine(obs,res,tgt){
+  const cv=el('lineCv'), x=cv.getContext('2d'), w=cv.width, h=cv.height;
+  const cs=getComputedStyle(document.documentElement);
+  const line=cs.getPropertyValue('--line').trim(), dim=cs.getPropertyValue('--fg-dim').trim();
+  const acc=cs.getPropertyValue('--accent').trim(), ok=cs.getPropertyValue('--ok').trim();
+  x.clearRect(0,0,w,h);
+  const all=obs.map(p=>p.ac).concat(tgt);
+  let lo=Math.min(...all)-80, hi=Math.max(...all)+80;
+  const T=obs[obs.length-1].t||1;
+  const px=t=>40+t/T*(w-60), py=c=>h-26-(c-lo)/(hi-lo)*(h-50);
+  // Halbtonraster
+  x.strokeStyle=line; x.lineWidth=2; x.font='22px ui-monospace,monospace'; x.fillStyle=dim;
+  for(let m=Math.ceil(lo/100);m<=Math.floor(hi/100);m++){
+    const y=py(m*100);
+    x.beginPath(); x.moveTo(40,y); x.lineTo(w,y); x.stroke();
+    x.fillText(noteName(m),2,y+8);
+  }
+  // Sollstufen
+  if(res && res.notes){
+    x.strokeStyle=ok; x.lineWidth=8; x.lineCap='butt';
+    res.notes.forEach(n=>{
+      const y=py(n.tgt+res.off);
+      x.beginPath(); x.moveTo(px(n.t0),y); x.lineTo(px(n.t1),y); x.stroke();
+    });
+  }
+  // gesungene Linie
+  x.strokeStyle=acc; x.lineWidth=5; x.lineJoin='round'; x.beginPath();
+  let pen=false, last=-1;
+  for(const p of obs){
+    if(last>=0 && p.t-last>150) pen=false;
+    const X=px(p.t), Y=py(p.ac);
+    if(!pen){ x.moveTo(X,Y); pen=true; } else x.lineTo(X,Y);
+    last=p.t;
+  }
+  x.stroke();
+}
+
+async function runLine(){
+  running=true;
+  el('start').disabled=true; el('free').disabled=true;
+  el('line').disabled=true; el('stop').disabled=false;
+  el('linePanel').hidden=false;
+  const degrees=el('shape').value.split(',').map(Number);
+  const lo=+fromSel.value, hi=+toSel.value;
+  for(let base=Math.min(lo,hi); base<=Math.max(lo,hi); base++){
+    if(!running) break;
+    const tgt=degrees.map(d=>(base+d)*100);
+    el('lineRows').innerHTML=''; el('lineSummary').innerHTML='';
+    el('lineVerdict').textContent=''; el('lineNote').textContent='';
+    phase('Figur hören: '+degrees.map(d=>noteName(base+d)).join(' ' ),false);
+    for(const d of degrees){
+      if(!running) break;
+      playTone(midiToFreq(base+d),0.5);
+      await sleep(600);
+    }
+    if(!running) break;
+    await sleep(700);
+    const win=Math.max(6000, degrees.length*1200+2000);
+    phase('Jetzt die ganze Figur singen — '+(win/1000).toFixed(0)+' s',true);
+    lineRec={obs:[],t0:performance.now()};
+    await sleep(win);
+    const obs=lineRec.obs; lineRec=null;
+    if(!running) break;
+    showLine(obs,tgt,base);
+    phase('Abgleich fertig.',false);
+    await sleep(1800);
+  }
+  running=false;
+  el('start').disabled=false; el('free').disabled=false;
+  el('line').disabled=false; el('stop').disabled=true;
+}
+
+function showLine(obs,tgt,base){
+  const V=el('lineVerdict'), N=el('lineNote');
+  if(obs.length < tgt.length*KMIN){
+    V.style.color='var(--off)';
+    V.textContent='zu wenig gehört';
+    N.textContent='Nur '+obs.length+' Messrahmen, nötig sind '+(tgt.length*KMIN)+
+      '. Lauter singen oder näher an das Mikrofon.';
+    return;
+  }
+  const res=alignLine(obs,tgt);
+  drawLine(obs,res.failed?null:res,tgt);
+  if(res.failed){
+    V.style.color='var(--off)'; V.textContent='kein Abgleich möglich';
+    N.textContent='Die Aufnahme ließ sich der Figur nicht zuordnen.';
+    return;
+  }
+  if(!res.fits){
+    V.style.color='var(--off)';
+    V.textContent='folgt der Figur nicht';
+    const own=ownSteps(obs);
+    const soll=tgt.map((t,i)=>i?((tgt[i]-tgt[i-1])/100).toFixed(1):'—');
+    const dein=own.map((o,i)=>i?((own[i].m-own[i-1].m)/100).toFixed(1):'—');
+    N.innerHTML='Deshalb keine Einzelwerte — sie wären erfunden. '+
+      'Was die Zuordnung verrät: Restfehler '+Math.round(res.rms)+' ct, '+
+      res.forced+' von '+tgt.length+' Sollnoten mussten erzwungen werden, '+
+      res.messy+' sind in sich zu unruhig für einen gehaltenen Ton.<br>'+
+      'Vorgegebene Schritte: <code>'+soll.join('  ')+'</code><br>'+
+      'Gesungene Schritte: <code>'+dein.join('  ')+'</code> ('+own.length+' Töne statt '+tgt.length+')';
+    el('lineSummary').innerHTML=
+      stat((res.off>=0?'+':'−')+Math.abs(res.off)+' ct','Gesamtversatz')+
+      stat(Math.round(res.rms)+' ct','Restfehler')+
+      stat(own.length+' / '+tgt.length,'Töne');
+    return;
+  }
+  V.style.color='var(--ok)'; V.textContent='folgt der Figur';
+  N.textContent='Abweichung ist der Abstand zur Vorgabe. Intervall ist derselbe Wert, '+
+    'nachdem der Gesamtversatz abgezogen wurde — er misst die Figur, nicht die Lage. '+
+    'Anlauf vergleicht den Beginn des Tons mit seiner Mitte: negativ heißt, du bist von unten hineingerutscht.';
+  res.notes.forEach(n=>{
+    const tr=document.createElement('tr');
+    const col=v=>Math.abs(v)<15?'var(--ok)':Math.abs(v)<35?'var(--near)':'var(--off)';
+    tr.innerHTML='<td style="color:var(--fg-dim)">'+(n.j+1)+'</td>'+
+      '<td>'+noteName(n.tgt/100)+'</td>'+
+      '<td style="color:'+col(n.abs)+'">'+signed(n.abs)+'</td>'+
+      '<td style="color:'+col(n.rel)+'">'+signed(n.rel)+'</td>'+
+      '<td>'+Math.round(n.spread)+'</td>'+
+      '<td>'+n.dur.toFixed(1)+' s</td>'+
+      '<td style="color:'+(Math.abs(n.scoop)<25?'var(--fg-dim)':'var(--near)')+'">'+signed(n.scoop)+'</td>';
+    el('lineRows').appendChild(tr);
+  });
+  const A=res.notes.map(n=>Math.abs(n.abs)), R=res.notes.map(n=>Math.abs(n.rel));
+  el('lineSummary').innerHTML=
+    stat((res.off>=0?'+':'−')+Math.abs(res.off)+' ct','Gesamtversatz')+
+    stat(Math.round(median(A))+' ct','Abweichung (Median)')+
+    stat(Math.round(median(R))+' ct','Intervall (Median)')+
+    stat(Math.round(res.rms)+' ct','Restfehler')+
+    stat(median(res.notes.map(n=>n.dur)).toFixed(1)+' s','Dauer je Ton');
+}
+
+el('line').addEventListener('click',runLine);
+
 el('free').addEventListener('click',()=>{
   freeMode=!freeMode;
   if(freeMode){
     el('freePanel').hidden=false;
     el('free').classList.add('primary');
     el('free').textContent='Mitschreiben beenden';
-    el('start').disabled=true;
+    el('start').disabled=true; el('line').disabled=true;
     phase('Mitschreiben läuft. Sing, was kommt.',true);
   }else{
     closeSeg();
     el('free').classList.remove('primary');
     el('free').textContent='Mitschreiben';
-    el('start').disabled=false;
+    el('start').disabled=false; el('line').disabled=false;
     phase('Mitschrift angehalten.',false);
   }
 });
