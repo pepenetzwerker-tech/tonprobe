@@ -201,3 +201,9 @@ Durchgänge der i-Figur ergaben etwa `+1.98 −1.94`, `+1.53 −1.90` und `+1.81
 ablesbar, dass der Schritt abwärts auf 2 Cent konstant war und der Schritt aufwärts um 23 Cent
 schwankte. Ohne stehende Liste wäre das nicht aufgefallen, weil jeder Durchgang den vorigen
 überschrieb.
+
+## Fassung
+
+In der Kopfzeile steht Datum und Uhrzeit der geladenen Fassung. Mobile Browser halten eine
+einmal geladene Seite hartnäckig im Zwischenspeicher; die Angabe sagt, ob die Änderung schon
+angekommen ist. Gesetzt wird sie vor dem Hochladen mit `./stamp.sh`.

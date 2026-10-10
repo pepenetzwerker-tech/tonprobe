@@ -106,7 +106,7 @@ td:first-child,th:first-child{padding-left:0}
 
 <header>
   <h1>Tonprobe</h1>
-  <span class="sub">Intonation in Cent · Bariton A2–F3</span>
+  <span class="sub">Intonation in Cent · <span id="ver">Fassung —</span></span>
 </header>
 
 <section class="panel gauge">
@@ -240,6 +240,7 @@ const signed=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'±')+Math.abs(
 const dbfs=r=>20*Math.log10(Math.max(r,1e-5));
 
 const el=id=>document.getElementById(id);
+el('ver').textContent='Fassung 10.10. 12:56';
 const fromSel=el('from'), toSel=el('to');
 for(let m=40;m<=60;m++){
   const a=new Option(noteName(m),m), b=new Option(noteName(m),m);
@@ -756,6 +757,7 @@ async function runLine(){
     const tgt=degrees.map(d=>(base+d)*100);
     el('lineRows').innerHTML=''; el('lineSummary').innerHTML='';
     el('lineVerdict').textContent=''; el('lineNote').innerHTML='';
+    clearLineCv();
     const cue=el('cue').value;
     if(cue==='all'){
       phase('Figur hören: '+degrees.map(d=>noteName(base+d)).join(' '),false);
@@ -818,9 +820,14 @@ el('clearLog').addEventListener('click',()=>{
   lineLog.length=0; el('lineLogRows').innerHTML=''; el('lineLogSummary').innerHTML='';
 });
 
+function clearLineCv(){
+  const cv=el('lineCv'); cv.getContext('2d').clearRect(0,0,cv.width,cv.height);
+}
+
 function showLine(obs,tgt,base){
   const V=el('lineVerdict'), N=el('lineNote');
   const baseName=noteName(tgt[0]/100);
+  clearLineCv();
   if(obs.length < tgt.length*KMIN){
     V.style.color='var(--off)';
     V.textContent='zu wenig gehört';
