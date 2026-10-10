@@ -20,6 +20,7 @@ Figuren, mit den gemessenen Kursfiguren als Vorlage:
 | Ganzton · 1–2–1 · wie das i | 0, 2, 0 | A2 H2 A2 |
 | kleine Terz · 1–3–1 | 0, 3, 0 | A2 C3 A2 |
 | Quinte · 1–5–1 · wie das u | 0, 7, 0 | A2 E3 A2 |
+| Ganzton abwärts · 3–2–1 · wie das a | 4, 2, 0 | C♯3 H2 A2 |
 | Terz-Lauf · 1–2–3–2–1 | 0, 2, 4, 2, 0 | A2 H2 C♯3 H2 A2 |
 
 **Mitschreiben** — kein Ziel vorgegeben. Die Seite findet die Töne selbst und protokolliert jeden:
@@ -112,3 +113,10 @@ spielt die Kursleiterin G3 (196,74 Hz), D4 (293,39 Hz), G3 (196,56 Hz) — Schri
 Streuungen unter 3 Cent, das Klavier dieser Aufnahme steht auf A = 441,0 Hz.
 
 Das deckt sich mit den gesungenen Figurspannen: beim i 1,8 bis 3,7 Halbtöne, beim u 6,6 bis 8,0.
+
+Die a-Figur ist nicht eindeutig. In der a-Aufnahme vom 16.9. (50 Klaviertöne, Streuung 3,9 Cent im
+Median, A = 440,4 Hz) finden sich mehrere Bewegungen: bei 70,7 s F♯3 (184,64 Hz) auf E3 (165,07 Hz)
+auf D3 (146,95 Hz), also zwei Ganztöne abwärts; bei 260,1 s eine große Terz abwärts und zurück; bei
+220,0 s A3 auf C4 auf F4, kleine Terz plus Quarte. Das deckt die gesungenen Figurspannen von 4,1 bis
+8,8 Halbtönen. Aufgenommen in die Auswahl wurde die absteigende Ganztonfolge, weil alle anderen
+Figuren aufwärts gehen.
