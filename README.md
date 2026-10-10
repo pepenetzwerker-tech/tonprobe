@@ -10,8 +10,17 @@ Live: https://pepenetzwerker-tech.github.io/tonprobe/
 sieben Sekunden mit Toleranzband bei ±10 Cent.
 
 **Übung** — Referenzton 1,4 s, Pause (2–5 s wählbar), 3,2 s singen, Prüfton. Halbtonweise von Startton
-bis Endton. Figuren: Einzelton, Ganzton 1–2–1, Terz 1–2–3–2–1. Protokolliert pro Ton Abweichung,
-Streuung, Zeit bis stabil und Dauer.
+bis Endton. Protokolliert pro Ton Abweichung, Streuung, Zeit bis stabil, Dauer und Pegel.
+
+Figuren, mit den gemessenen Kursfiguren als Vorlage:
+
+| Auswahl | Stufen | Beispiel ab A2 |
+|---|---|---|
+| Einzelton | 1 | A2 |
+| Ganzton · 1–2–1 · wie das i | 0, 2, 0 | A2 H2 A2 |
+| kleine Terz · 1–3–1 | 0, 3, 0 | A2 C3 A2 |
+| Quinte · 1–5–1 · wie das u | 0, 7, 0 | A2 E3 A2 |
+| Terz-Lauf · 1–2–3–2–1 | 0, 2, 4, 2, 0 | A2 H2 C♯3 H2 A2 |
 
 **Mitschreiben** — kein Ziel vorgegeben. Die Seite findet die Töne selbst und protokolliert jeden:
 Notenname, Abweichung zum nächstliegenden Halbton, Streuung, Dauer.
@@ -96,3 +105,10 @@ Klavier und Stimme lassen sich dabei trennen: ein Klavierton steht auf 1 bis 6 C
 leiser, eine Stimme streut um 13 Cent im Median. Gegenprobe über 25 stabile Klaviertöne: alle
 tragen dieselbe Verstimmung von +2,9 Cent gegen den Kammerton, das Instrument ist also auf
 A = 440,7 Hz gestimmt.
+
+Die u-Figur ist eine Quinte hinauf und zurück. Gemessen aus der u-Aufnahme vom 16.9.: bei 90,1 s
+spielt die Kursleiterin G3 (196,74 Hz), D4 (293,39 Hz), G3 (196,56 Hz) — Schritte von +6,92 und
+−6,93 Halbtönen; bei 149,4 s C3 (130,96 Hz) auf G3 (196,45 Hz), also +7,02. Alle Töne mit
+Streuungen unter 3 Cent, das Klavier dieser Aufnahme steht auf A = 441,0 Hz.
+
+Das deckt sich mit den gesungenen Figurspannen: beim i 1,8 bis 3,7 Halbtöne, beim u 6,6 bis 8,0.
