@@ -208,7 +208,18 @@ td:first-child,th:first-child{padding-left:0}
     <tbody id="lineRows"></tbody>
   </table>
   <div class="summary" id="lineSummary"></div>
-  <p class="hint" id="lineNote" style="margin-bottom:0"></p>
+  <p class="hint" id="lineNote"></p>
+  <div class="row" style="justify-content:space-between;align-items:baseline;
+       border-top:1px solid var(--line);padding-top:16px;margin-top:4px">
+    <strong style="font-weight:600;font-size:14px">Verlauf der Durchgänge</strong>
+    <button id="clearLog">Liste leeren</button>
+  </div>
+  <table style="margin-top:10px">
+    <thead><tr><th>#</th><th>Grundton</th><th>Urteil</th><th>Versatz</th><th>Abw.</th>
+    <th>Intervall</th><th>Restfehler</th><th>gesungene Schritte</th></tr></thead>
+    <tbody id="lineLogRows"></tbody>
+  </table>
+  <div class="summary" id="lineLogSummary"></div>
 </section>
 
 <p class="hint">Ohne Übung läuft die Anzeige als Stimmgerät mit. <strong>Mitschreiben</strong> gibt kein Ziel vor:
@@ -744,7 +755,7 @@ async function runLine(){
     if(!running) break;
     const tgt=degrees.map(d=>(base+d)*100);
     el('lineRows').innerHTML=''; el('lineSummary').innerHTML='';
-    el('lineVerdict').textContent=''; el('lineNote').textContent='';
+    el('lineVerdict').textContent=''; el('lineNote').innerHTML='';
     const cue=el('cue').value;
     if(cue==='all'){
       phase('Figur hören: '+degrees.map(d=>noteName(base+d)).join(' '),false);
@@ -775,13 +786,47 @@ async function runLine(){
   el('line').disabled=false; el('stop').disabled=true;
 }
 
+/* Der Verlauf bleibt über die Durchgänge stehen. Ein Messwert, der beim
+   nächsten Durchgang verschwindet, ist als Messwert nicht zu gebrauchen. */
+const lineLog=[];
+
+function logLine(e){
+  lineLog.push(e);
+  const tr=document.createElement('tr');
+  const u = e.verdict==='folgt' ? '<span class="tag ok">folgt</span>'
+          : e.verdict==='zu leise' ? '<span class="tag off">zu leise</span>'
+          : '<span class="tag off">folgt nicht</span>';
+  tr.innerHTML='<td style="color:var(--fg-dim)">'+lineLog.length+'</td>'+
+    '<td>'+e.base+'</td><td>'+u+'</td>'+
+    '<td>'+(e.off==null?'—':signed(e.off))+'</td>'+
+    '<td>'+(e.abs==null?'—':Math.round(e.abs))+'</td>'+
+    '<td>'+(e.rel==null?'—':Math.round(e.rel))+'</td>'+
+    '<td>'+(e.rms==null?'—':Math.round(e.rms))+'</td>'+
+    '<td style="font-size:12px">'+(e.steps||'—')+'</td>';
+  el('lineLogRows').appendChild(tr);
+  tr.scrollIntoView({block:'nearest'});
+  const ok=lineLog.filter(x=>x.verdict==='folgt');
+  const withNum=lineLog.filter(x=>x.rel!=null);
+  el('lineLogSummary').innerHTML=
+    stat(ok.length+' / '+lineLog.length,'folgen der Figur')+
+    (withNum.length?stat(Math.round(median(withNum.map(x=>x.abs)))+' ct','Abweichung (Median)')+
+      stat(Math.round(median(withNum.map(x=>x.rel)))+' ct','Intervall (Median)')+
+      stat(Math.round(median(withNum.map(x=>x.rms)))+' ct','Restfehler (Median)'):'');
+}
+
+el('clearLog').addEventListener('click',()=>{
+  lineLog.length=0; el('lineLogRows').innerHTML=''; el('lineLogSummary').innerHTML='';
+});
+
 function showLine(obs,tgt,base){
   const V=el('lineVerdict'), N=el('lineNote');
+  const baseName=noteName(tgt[0]/100);
   if(obs.length < tgt.length*KMIN){
     V.style.color='var(--off)';
     V.textContent='zu wenig gehört';
     N.textContent='Nur '+obs.length+' Messrahmen, nötig sind '+(tgt.length*KMIN)+
       '. Lauter singen oder näher an das Mikrofon.';
+    logLine({base:baseName, verdict:'zu leise'});
     return;
   }
   const res=alignLine(obs,tgt);
@@ -789,6 +834,7 @@ function showLine(obs,tgt,base){
   if(res.failed){
     V.style.color='var(--off)'; V.textContent='kein Abgleich möglich';
     N.textContent='Die Aufnahme ließ sich der Figur nicht zuordnen.';
+    logLine({base:baseName, verdict:'folgt nicht'});
     return;
   }
   const own=ownSteps(obs);
@@ -835,6 +881,13 @@ function showLine(obs,tgt,base){
     stat(Math.round(res.rms)+' ct','Restfehler')+
     stat(own.length+' / '+tgt.length,'Töne')+
     stat(median(res.notes.map(n=>n.dur)).toFixed(1)+' s','Dauer je Ton');
+  const stTxt=own.length<2?'—':own.slice(1).map((o,i)=>{
+      const v=(own[i+1].m-own[i].m)/100;
+      return (v>0?'+':v<0?'−':'±')+Math.abs(v).toFixed(2);
+    }).join(' ');
+  logLine({base:baseName, verdict:res.fits?'folgt':'folgt nicht', off:res.off,
+           abs:median(A), rel:median(R), rms:res.rms,
+           steps: stTxt.length>52 ? stTxt.slice(0,50)+'…' : stTxt});
 }
 
 el('line').addEventListener('click',runLine);

@@ -188,3 +188,16 @@ werden richtig eingeordnet.
 Am Telefon leiten Android und iOS die Ausgabe oft auf den Telefonhörer um, sobald eine Seite das
 Mikrofon offen hat. Der Referenzton ist dann da, aber nur am Ohr hörbar. Kopfhörer beheben das und
 verhindern zugleich, dass das Mikrofon den Referenzton mithört und die Messung verfälscht.
+
+## Verlauf der Durchgänge
+
+Unter dem Abgleich steht eine Liste, die über die Durchgänge hinweg bestehen bleibt: je eine Zeile
+pro durchgesungener Figur mit Grundton, Urteil, Gesamtversatz, Abweichung, Intervall, Restfehler und
+den gesungenen Schritten in Halbtönen. Darunter die Mediane über alle Durchgänge und wie viele der
+Figur gefolgt sind. Geleert wird sie nur auf Knopfdruck.
+
+Die Spalte *gesungene Schritte* ist der eigentliche Fortschrittswert bei den Kursfiguren. Drei
+Durchgänge der i-Figur ergaben etwa `+1.98 −1.94`, `+1.53 −1.90` und `+1.81 −1.94` — daran war
+ablesbar, dass der Schritt abwärts auf 2 Cent konstant war und der Schritt aufwärts um 23 Cent
+schwankte. Ohne stehende Liste wäre das nicht aufgefallen, weil jeder Durchgang den vorigen
+überschrieb.
