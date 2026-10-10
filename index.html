@@ -180,7 +180,7 @@ td:first-child,th:first-child{padding-left:0}
     <button id="clearFree">Liste leeren</button>
   </div>
   <table>
-    <thead><tr><th>#</th><th>Ton</th><th>Abw.</th><th>Streuung</th><th>Dauer</th><th>Pegel dB</th></tr></thead>
+    <thead><tr><th>#</th><th>Ton</th><th>Abw.</th><th>Schritt</th><th>Streuung</th><th>Dauer</th><th>Pegel dB</th></tr></thead>
     <tbody id="freeRows"></tbody>
   </table>
   <div class="summary" id="freeSummary"></div>
@@ -537,8 +537,21 @@ function closeSeg(){
   freeRow(m, med-m*100, sd(cs), dur/1000, s.breaks, s.oct/s.pts.length, dbfs(median(s.r)));
 }
 
+/* Schritt: Abstand zum vorigen Ton in Halbtönen. Nahe an einem glatten
+   Intervall wird es benannt, damit die Figur ohne Kopfrechnen ablesbar ist. */
+const INTERVAL={1:'Halbton',2:'Ganzton',3:'kl. Terz',4:'gr. Terz',5:'Quarte',7:'Quinte',12:'Oktave'};
+function stepText(st){
+  if(st===null) return '—';
+  const a=Math.abs(st), n=Math.round(a);
+  const name=(n>0 && Math.abs(a-n)<0.25 && INTERVAL[n])?' '+INTERVAL[n]:'';
+  return (st>0?'+':st<0?'−':'±')+a.toFixed(2)+name;
+}
+
 function freeRow(m,dev,spread,dur,breaks,octShare,db){
-  freeRes.push({m,dev,spread,dur,breaks,octShare,db});
+  const prev=freeRes.length?freeRes[freeRes.length-1]:null;
+  const abs=m*100+dev;
+  const step=prev?(abs-(prev.m*100+prev.dev))/100:null;
+  freeRes.push({m,dev,spread,dur,breaks,octShare,db,abs,step});
   const tr=document.createElement('tr');
   const a=Math.abs(dev);
   const col=a<10?'var(--ok)':a<25?'var(--near)':'var(--off)';
@@ -550,6 +563,7 @@ function freeRow(m,dev,spread,dur,breaks,octShare,db){
       ' % der Rahmen waren eine Oktave zu hoch erkannt und wurden korrigiert — diese Zeile mit Vorbehalt"'+
       ' style="color:var(--near)"> 8\u1d5b\u1d43</span>':'')+'</td>'+
     '<td style="color:'+col+'">'+signed(dev)+'</td>'+
+    '<td'+(step===null?' style="color:var(--fg-dim)"':'')+'>'+stepText(step)+'</td>'+
     '<td>'+spread.toFixed(0)+'</td>'+
     '<td>'+dur.toFixed(1)+' s'+mark+'</td>'+
     '<td>'+db.toFixed(0)+'</td>';

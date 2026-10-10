@@ -72,3 +72,27 @@ Sitzungen also: dasselbe Gerät, derselbe Abstand.
 Wozu der Wert gut ist: Tonhöhe und Lautstärke hängen zusammen. Mehr Atemdruck hebt den Grundton
 um einige Cent pro Dezibel, und die Volldecke braucht Druck, um überhaupt zu tragen. Eine leise
 Sitzung ist deshalb nicht dieselbe Messung wie eine laute, auch wenn die Cent-Werte gleich aussehen.
+
+## Schritt
+
+Die Mitschrift zeigt pro Ton den Abstand zum vorigen in Halbtönen, und benennt ihn, wenn er
+näher als 25 Cent an einem glatten Intervall liegt — Halbton, Ganzton, kleine und große Terz,
+Quarte, Quinte, Oktave.
+
+Damit sind Figuren ohne Kopfrechnen lesbar. Die i-Figur aus dem Kurs liest sich als
+`+2.00 Ganzton` / `−2.00 Ganzton`.
+
+Wozu das gut ist: ohne Vorgabe ist die absolute Tonhöhe beliebig, der Abstand nicht. Die Spalte
+Abweichung misst dann nur, ob der Ton zufällig auf einer Klaviertaste gelandet ist; die Spalte
+Schritt misst, ob das gemeinte Intervall herauskam.
+
+## Belegte Referenz
+
+Die i-Figur ist ein Ganzton hinauf und zurück, nicht ein Halbton. Gemessen aus einer Kursaufnahme:
+die Kursleiterin spielt bei 81,7 s G4 (393,09 Hz), A4 (441,14 Hz), G4 (393,18 Hz) — Schritte von
++1,99 und −1,99 Halbtönen.
+
+Klavier und Stimme lassen sich dabei trennen: ein Klavierton steht auf 1 bis 6 Cent still und wird
+leiser, eine Stimme streut um 13 Cent im Median. Gegenprobe über 25 stabile Klaviertöne: alle
+tragen dieselbe Verstimmung von +2,9 Cent gegen den Kammerton, das Instrument ist also auf
+A = 440,7 Hz gestimmt.
