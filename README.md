@@ -20,8 +20,9 @@ Figuren, mit den gemessenen Kursfiguren als Vorlage:
 | Ganzton · 1–2–1 · wie das i | 0, 2, 0 | A2 H2 A2 |
 | kleine Terz · 1–3–1 | 0, 3, 0 | A2 C3 A2 |
 | Quinte · 1–5–1 · wie das u | 0, 7, 0 | A2 E3 A2 |
-| Ganzton abwärts · 3–2–1 · wie das a | 4, 2, 0 | C♯3 H2 A2 |
+| Ganzton abwärts · 3–2–1 | 4, 2, 0 | C♯3 H2 A2 |
 | Terz-Lauf · 1–2–3–2–1 | 0, 2, 4, 2, 0 | A2 H2 C♯3 H2 A2 |
+| Bogen · 1–2–3–4–5–4–3 · wie das a | 0, 2, 4, 5, 7, 5, 4 | A2 H2 C♯3 D3 E3 D3 C♯3 |
 
 **Mitschreiben** — kein Ziel vorgegeben. Die Seite findet die Töne selbst und protokolliert jeden:
 Notenname, Abweichung zum nächstliegenden Halbton, Streuung, Dauer.
@@ -120,3 +121,17 @@ auf D3 (146,95 Hz), also zwei Ganztöne abwärts; bei 260,1 s eine große Terz a
 220,0 s A3 auf C4 auf F4, kleine Terz plus Quarte. Das deckt die gesungenen Figurspannen von 4,1 bis
 8,8 Halbtönen. Aufgenommen in die Auswahl wurde die absteigende Ganztonfolge, weil alle anderen
 Figuren aufwärts gehen.
+
+Die a-Figur steht hier **nach mündlicher Beschreibung, nicht nach Messung**: sieben Töne, die ersten
+zwei auf i als Anlauf, dann aufwärts bis zum höchsten Ton an fünfter Stelle, die letzten zwei
+abfallend.
+
+Der Messversuch ist gescheitert, und zwar an der Segmentierung. Von fünf gesungenen Siebener-Gruppen
+passen zwei gut auf einen Bogen mit Gipfel am vierten Ton (29 und 34 Cent Fehler), zwei steigen über
+alle sieben Töne durch und haben keinen Abstieg — dort hat die Gruppierung mitten in der Figur
+geschnitten. Über alle fünf liegt der Fehler bei 112 Cent. Bei sieben Tönen in einer fließenden Linie
+findet die Plateauerkennung keine sieben Plateaus; sie verschmilzt manche und zerteilt andere. Beim i
+und u ging es, weil dort drei Töne mit Pausen dazwischen stehen.
+
+Die absteigende Ganztonfolge bleibt in der Auswahl, trägt aber keinen Vokalnamen mehr: F♯3–E3–D3 aus
+der Aufnahme ist wahrscheinlich der Schluss der langen Figur, nicht die ganze.
