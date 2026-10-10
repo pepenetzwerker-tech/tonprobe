@@ -222,6 +222,20 @@ td:first-child,th:first-child{padding-left:0}
   <div class="summary" id="lineLogSummary"></div>
 </section>
 
+<section class="panel" id="arcPanel">
+  <div class="row" style="justify-content:space-between;align-items:baseline">
+    <strong style="font-weight:600;font-size:14px">Archiv</strong>
+    <span id="arcInfo" class="hint"></span>
+  </div>
+  <div class="row" style="margin-top:12px">
+    <button class="primary" id="arcSave">Als CSV sichern</button>
+    <button id="arcClear" style="margin-left:auto">Archiv löschen</button>
+  </div>
+  <p class="hint" style="margin-bottom:0">Jede fertige Zeile wird mit Zeitstempel hier abgelegt und
+  bleibt, auch wenn du die Listen oben leerst oder die Seite schließt. Gespeichert wird im Browser
+  dieses Geräts — die CSV-Datei ist die Sicherung, die das überlebt.</p>
+</section>
+
 <p class="hint">Ohne Übung läuft die Anzeige als Stimmgerät mit. <strong>Mitschreiben</strong> gibt kein Ziel vor:
 du singst, was kommt, und bekommst nach jedem Ton die Zeile — Notenname, Abweichung zum nächstliegenden
 Halbton (A = 440 Hz), Streuung, Dauer. Wird das Mikrofon nicht gefragt, liegt es am
@@ -240,7 +254,7 @@ const signed=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'±')+Math.abs(
 const dbfs=r=>20*Math.log10(Math.max(r,1e-5));
 
 const el=id=>document.getElementById(id);
-el('ver').textContent='Fassung 10.10. 12:56';
+el('ver').textContent='Fassung 10.10. 14:49';
 const fromSel=el('from'), toSel=el('to');
 for(let m=40;m<=60;m++){
   const a=new Option(noteName(m),m), b=new Option(noteName(m),m);
@@ -528,6 +542,10 @@ function record(m,samples){
   const db=dbfs(median(samples.map(s=>s.r)));
   const hit = stable!==null && stable<500 && Math.abs(dev)<25;
   results.push({m,dev,spread,stable,dur,db,ok:hit});
+  arcAdd({modus:'Übung', figur:el('shape').selectedOptions[0].textContent,
+    nr:results.length, soll:noteName(m), abw:Math.round(dev),
+    streuung:Math.round(spread), stabil:stable===null?'':(stable/1000).toFixed(1),
+    dauer:dur.toFixed(1), pegel:Math.round(db), urteil:hit?'sofort':'gesucht'});
   tr.innerHTML=
     '<td>'+noteName(m)+'</td>'+
     '<td>'+signed(dev)+'</td>'+
@@ -593,6 +611,10 @@ function freeRow(m,dev,spread,dur,breaks,octShare,db){
   const abs=m*100+dev;
   const step=prev?(abs-(prev.m*100+prev.dev))/100:null;
   freeRes.push({m,dev,spread,dur,breaks,octShare,db,abs,step});
+  arcAdd({modus:'Mitschrift', nr:freeRes.length, ton:noteName(m),
+    abw:Math.round(dev), schritt:step===null?'':step.toFixed(2),
+    streuung:Math.round(spread), dauer:dur.toFixed(1), pegel:Math.round(db),
+    marken:(breaks?breaks+' Aussetzer ':'')+(octShare>0.15?'Oktave korrigiert':'')});
   const tr=document.createElement('tr');
   const a=Math.abs(dev);
   const col=a<10?'var(--ok)':a<25?'var(--near)':'var(--off)';
@@ -794,6 +816,12 @@ const lineLog=[];
 
 function logLine(e){
   lineLog.push(e);
+  arcAdd({modus:'Durchsingen', figur:el('shape').selectedOptions[0].textContent,
+    nr:lineLog.length, soll:e.base, urteil:e.verdict,
+    versatz:e.off==null?'':Math.round(e.off),
+    abw:e.abs==null?'':Math.round(e.abs),
+    intervall:e.rel==null?'':Math.round(e.rel),
+    restfehler:e.rms==null?'':Math.round(e.rms), marken:e.steps||''});
   const tr=document.createElement('tr');
   const u = e.verdict==='folgt' ? '<span class="tag ok">folgt</span>'
           : e.verdict==='zu leise' ? '<span class="tag off">zu leise</span>'
@@ -815,6 +843,56 @@ function logLine(e){
       stat(Math.round(median(withNum.map(x=>x.rel)))+' ct','Intervall (Median)')+
       stat(Math.round(median(withNum.map(x=>x.rms)))+' ct','Restfehler (Median)'):'');
 }
+
+
+/* ---------- Archiv ----------
+   Die sichtbaren Listen werden geleert, sobald sie zu lang werden. Damit die
+   Messwerte das überleben, wandert jede fertige Zeile mit Zeitstempel hierher.
+   Der Speicher des Browsers kann jederzeit verloren gehen — die CSV-Datei ist
+   deshalb die eigentliche Sicherung, nicht dieser Speicher. */
+const ARC_KEY='tonprobe.archiv.v1';
+const ARC_COLS=['zeit','modus','figur','nr','ton','soll','abw','schritt','streuung',
+                'dauer','pegel','stabil','versatz','intervall','restfehler','urteil','marken'];
+let arc=[];
+try{ arc=JSON.parse(localStorage.getItem(ARC_KEY)||'[]'); }catch(e){ arc=[]; }
+
+function arcInfo(){
+  const n=arc.length;
+  el('arcInfo').textContent = n
+    ? n+' Zeile'+(n===1?'':'n')+' seit '+arc[0].zeit.slice(0,16).replace('T',' ')
+    : 'noch nichts gespeichert';
+  el('arcSave').disabled=!n;
+}
+function arcAdd(rec){
+  rec.zeit=new Date().toISOString();
+  arc.push(rec);
+  try{ localStorage.setItem(ARC_KEY,JSON.stringify(arc)); }
+  catch(e){ /* Speicher voll oder gesperrt: die Sitzung läuft weiter, nur ohne Ablage */ }
+  arcInfo();
+}
+function csvCell(v){
+  if(v===undefined||v===null) return '';
+  const t=String(v);
+  return /[;"\n]/.test(t) ? '"'+t.replace(/"/g,'""')+'"' : t;
+}
+el('arcSave').addEventListener('click',()=>{
+  const head=ARC_COLS.join(';');
+  const body=arc.map(r=>ARC_COLS.map(c=>csvCell(r[c])).join(';')).join('\n');
+  const blob=new Blob(['﻿'+head+'\n'+body],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='tonprobe-'+new Date().toISOString().slice(0,16).replace(/[:T]/g,'-')+'.csv';
+  document.body.appendChild(a); a.click();
+  setTimeout(()=>{URL.revokeObjectURL(a.href); a.remove();},1000);
+});
+el('arcClear').addEventListener('click',()=>{
+  if(!arc.length) return;
+  if(!confirm(arc.length+' Zeilen endgültig löschen? Vorher sichern.')) return;
+  arc=[];
+  try{ localStorage.removeItem(ARC_KEY); }catch(e){}
+  arcInfo();
+});
+arcInfo();
 
 el('clearLog').addEventListener('click',()=>{
   lineLog.length=0; el('lineLogRows').innerHTML=''; el('lineLogSummary').innerHTML='';

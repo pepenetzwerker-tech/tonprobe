@@ -4,6 +4,8 @@ Intonationsmessung für Gesangsübung. Eine einzelne HTML-Datei, kein Server, ke
 
 Live: https://pepenetzwerker-tech.github.io/tonprobe/
 
+Die bisherigen Messwerte stehen in [PROTOKOLL.md](PROTOKOLL.md).
+
 ## Drei Betriebsarten
 
 **Stimmgerät** — läuft immer mit. Notenname, Abweichung in Cent, Zeiger, und der Verlauf der letzten
@@ -207,3 +209,17 @@ schwankte. Ohne stehende Liste wäre das nicht aufgefallen, weil jeder Durchgang
 In der Kopfzeile steht Datum und Uhrzeit der geladenen Fassung. Mobile Browser halten eine
 einmal geladene Seite hartnäckig im Zwischenspeicher; die Angabe sagt, ob die Änderung schon
 angekommen ist. Gesetzt wird sie vor dem Hochladen mit `./stamp.sh`.
+
+## Archiv
+
+Jede fertige Zeile aus allen drei Betriebsarten wird mit Zeitstempel im Browser abgelegt und bleibt
+dort, auch wenn die Listen oben geleert werden oder die Seite geschlossen wird. **Als CSV sichern**
+lädt alles als Semikolon-Datei mit BOM herunter, die sich ohne Umweg in einer Tabellenkalkulation
+öffnen lässt.
+
+Der Browserspeicher ist nicht verlässlich — er kann beim Löschen der Websitedaten verschwinden und
+ist auf dieses eine Gerät beschränkt. Die CSV-Datei ist deshalb die eigentliche Sicherung, nicht
+der Speicher.
+
+Spalten: zeit, modus, figur, nr, ton, soll, abw, schritt, streuung, dauer, pegel, stabil, versatz,
+intervall, restfehler, urteil, marken. Je nach Betriebsart bleibt ein Teil davon leer.
