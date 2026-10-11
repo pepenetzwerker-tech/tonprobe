@@ -175,6 +175,15 @@ folgt. Drei Prüfungen entscheiden, ob die Einzelwerte überhaupt etwas bedeuten
 - quadratisches Mittel der Intervallabweichungen unter 50 Cent (nicht der Median — der versteckt einzelne grobe Fehler)
 - höchstens ein Sollton, der nur die Mindestdauer bekommen hat (häufen die sich, wurde die Zuordnung erzwungen)
 - kein Abschnitt mit über 70 Cent Streuung (ein solcher Abschnitt ist kein gehaltener Ton, sondern ein Sammelbecken mehrerer Tonhöhen)
+- genau so viele gesungene Töne wie Sollnoten, und bei gleicher Zahl eine Schrittfolge, die höchstens 60 Cent von der vorgegebenen abweicht
+
+Die letzte Prüfung ist die wichtigste, weil sie nicht vom Abgleich abhängt. Der Abgleich kann wenige
+lange Töne in mehrere Sollnoten zerschneiden und so passende Mediane erzeugen — dann sehen Intervall
+und Restfehler gut aus, obwohl die Figur gar nicht gesungen wurde. Die unabhängige Segmentierung ist
+der Zeuge dagegen. Ein Beispiel aus dem Gebrauch: drei Töne mit den Schritten −0,53 / +1,43 gegen
+eine Vorgabe von +2,00 / −2,00 wurden mit einem Intervallfehler von 8 Cent als *folgt* gewertet.
+Eine Toleranz von einem Ton Unterschied bei der Tonzahl ist dabei keine Hilfe, sondern hebelt die
+Formprüfung aus — gerade der Fall, für den sie gebaut ist, liefe dann ungeprüft durch.
 
 Fällt eine davon durch, erscheinen die Einzelwerte trotzdem, aber gedämpft und mit der Warnung,
 dass die Zuordnung unsicher ist — dazu die gesungenen Schritte neben den vorgegebenen. Einzelne

@@ -254,7 +254,7 @@ const signed=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'±')+Math.abs(
 const dbfs=r=>20*Math.log10(Math.max(r,1e-5));
 
 const el=id=>document.getElementById(id);
-el('ver').textContent='Fassung 10.10. 14:49';
+el('ver').textContent='Fassung 11.10. 11:01';
 const fromSel=el('from'), toSel=el('to');
 for(let m=40;m<=60;m++){
   const a=new Option(noteName(m),m), b=new Option(noteName(m),m);
@@ -691,6 +691,31 @@ function dtwPath(obs,tgt,off){
   return {cost:prev[end], seg};
 }
 
+/* Die Güteprüfung darf sich nicht allein auf den Abgleich stützen: er kann
+   wenige lange Töne in mehrere Sollnoten zerschneiden und so passende Mediane
+   erzeugen. Die unabhängige Segmentierung ist der Zeuge dagegen — stimmt die
+   Zahl der Töne nicht, oder stimmen bei gleicher Zahl die Schritte nicht,
+   bedeuten die Einzelwerte nichts. */
+function stepCheck(obs,tgt){
+  const own=ownSteps(obs);
+  /* Genau so viele Töne wie Sollnoten. Eine Toleranz von einem Ton würde die
+     Formprüfung aushebeln — dann liefe gerade der Fall ungeprüft durch, für den
+     sie gebaut ist. Lieber einmal zu oft 'unsicher' als einmal falsch bestätigt. */
+  if(own.length!==tgt.length) return {ok:false, own, grund:'Tonzahl'};
+  if(tgt.length>1){
+    let s=0;
+    for(let i=1;i<tgt.length;i++){
+      /* beide Seiten in Cent: ownSteps liefert Cent, tgt ebenfalls */
+      const d=(own[i].m-own[i-1].m)-(tgt[i]-tgt[i-1]);
+      s+=d*d;
+    }
+    const rms=Math.sqrt(s/(tgt.length-1));
+    if(rms>60) return {ok:false, own, grund:'Schrittfolge', rms};
+    return {ok:true, own, rms};
+  }
+  return {ok:true, own};
+}
+
 function alignLine(obs,tgt){
   let best=null;
   for(let off=-350;off<=350;off+=10){
@@ -711,8 +736,9 @@ function alignLine(obs,tgt){
      Sammelbecken: dort hat der Abgleich mehrere Tonhoehen zusammengeworfen.
      Der Median der Abweichungen kann dabei zufaellig passen. */
   const messy=notes.filter(n=>n.spread>70).length;
-  return {off:best.off, notes, rms, forced, messy,
-          fits: rms<50 && forced<=1 && messy===0 && Math.abs(best.off)<340};
+  const sc=stepCheck(obs,tgt);
+  return {off:best.off, notes, rms, forced, messy, steps:sc,
+          fits: rms<50 && forced<=1 && messy===0 && Math.abs(best.off)<340 && sc.ok};
 }
 
 /* Was tatsächlich gesungen wurde, unabhängig von der Vorgabe —
@@ -937,7 +963,13 @@ function showLine(obs,tgt,base){
     const dein=own.map((o,i)=>i?((own[i].m-own[i-1].m)/100).toFixed(1):'—');
     N.innerHTML='<strong style="color:var(--off)">Die Zeilen unten mit Vorbehalt lesen.</strong> '+
       'Die Zuordnung zwischen deiner Linie und den Sollnoten ist unsicher, dann messen die '+
-      'Einzelwerte nicht, was sie behaupten. Woran es liegt: Restfehler '+Math.round(res.rms)+
+      'Einzelwerte nicht, was sie behaupten. Woran es liegt: '+
+      (res.steps && !res.steps.ok
+        ? (res.steps.grund==='Tonzahl'
+            ? '<strong>'+res.steps.own.length+' Töne gesungen gegen '+tgt.length+' Sollnoten</strong>; '
+            : '<strong>die Schrittfolge stimmt nicht</strong>, '+Math.round(res.steps.rms)+' ct daneben; ')
+        : '')+
+      'Restfehler '+Math.round(res.rms)+
       ' ct, '+res.forced+' von '+tgt.length+' Sollnoten auf die Mindestdauer gezwungen, '+
       res.messy+' in sich zu unruhig für einen gehaltenen Ton.<br>'+
       'Vorgegebene Schritte: <code>'+soll.join('  ')+'</code><br>'+
