@@ -12,7 +12,10 @@ Die bisherigen Messwerte stehen in [PROTOKOLL.md](PROTOKOLL.md).
 sieben Sekunden mit Toleranzband bei ±10 Cent.
 
 **Übung** — Referenzton 1,4 s, Pause (2–5 s wählbar), 3,2 s singen, Prüfton. Halbtonweise von Startton
-bis Endton. Protokolliert pro Ton Abweichung, Streuung, Zeit bis stabil, Dauer und Pegel.
+bis Endton, und das Ganze so oft, wie unter *Durchgänge* eingestellt ist (1 bis 20). Startton und
+Endton auf denselben Ton zu setzen und zehn Durchgänge zu wählen gibt zehn Versuche auf genau
+diesem einen Ton; die Zusammenfassung rechnet dann über alle zehn. Dieselbe Einstellung gilt für
+*Figur durchsingen*. Protokolliert pro Ton Abweichung, Streuung, Zeit bis stabil, Dauer und Pegel.
 
 Figuren, mit den gemessenen Kursfiguren als Vorlage:
 
