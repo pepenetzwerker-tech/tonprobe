@@ -184,6 +184,7 @@ td:first-child,th:first-child{padding-left:0}
   </div>
   <div class="phase"><span class="dot" id="dot"></span><span id="phase">Bereit. Mikrofon einschalten, dann Übung starten.</span></div>
   <div class="err" id="err" hidden></div>
+  <div class="summary" id="micInfo" hidden></div>
 </section>
 
 <section class="panel" id="resultPanel" hidden>
@@ -263,7 +264,7 @@ const signed=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'±')+Math.abs(
 const dbfs=r=>20*Math.log10(Math.max(r,1e-5));
 
 const el=id=>document.getElementById(id);
-el('ver').textContent='Fassung 11.10. 11:06';
+el('ver').textContent='Fassung 16.10. 14:23';
 const fromSel=el('from'), toSel=el('to');
 for(let m=40;m<=60;m++){
   const a=new Option(noteName(m),m), b=new Option(noteName(m),m);
@@ -282,7 +283,7 @@ function detectPitch(b,sr){
   const N=b.length;
   let rms=0; for(let i=0;i<N;i++) rms+=b[i]*b[i];
   rms=Math.sqrt(rms/N);
-  if(rms<0.012) return {f:-1,rms};
+  if(rms<RMS_GATE) return {f:-1,rms};
   const maxLag=Math.min(Math.floor(sr/70), N>>1);
   const minLag=Math.floor(sr/900);
   const span=N-maxLag;
@@ -363,6 +364,30 @@ function micError(e){
   el('err').innerHTML='<strong>'+txt+'</strong><br>'+fix;
 }
 
+/* Die drei Verarbeitungen werden beim Öffnen abgeschaltet verlangt, aber ein
+   Gerät darf das überstimmen. Hier steht, was es wirklich übernommen hat. */
+function showMicInfo(){
+  const box=el('micInfo');
+  const tr=stream&&stream.getAudioTracks?stream.getAudioTracks()[0]:null;
+  if(!tr||!tr.getSettings){ box.hidden=true; return; }
+  const s=tr.getSettings();
+  const wunsch=[['echoCancellation','Echosperre'],
+                ['noiseSuppression','Rauschsperre'],
+                ['autoGainControl','Pegelautomatik']];
+  let teile=[], warn=false;
+  for(const [k,name] of wunsch){
+    if(s[k]===undefined){ teile.push(name+': unbekannt'); warn=true; }
+    else if(s[k]){ teile.push(name+': <strong>an</strong>'); warn=true; }
+    else teile.push(name+': aus');
+  }
+  let txt='<strong>'+(tr.label||'Mikrofon')+'</strong> — '+teile.join(' · ');
+  if(s.sampleRate) txt+=' · '+s.sampleRate+' Hz';
+  if(warn) txt+='<br><span style="color:var(--near)">Verlangt waren alle drei aus. '+
+    'Was nicht „aus“ ist, verändert deinen Ton, bevor ich ihn sehe — '+
+    'die Pegelautomatik macht vor allem die Pegelspalte unbrauchbar.</span>';
+  box.innerHTML=txt; box.hidden=false;
+}
+
 el('mic').addEventListener('click',async()=>{
   try{
     if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
@@ -383,6 +408,7 @@ el('mic').addEventListener('click',async()=>{
     el('line').disabled=false;
     el('phase').textContent='Stimmgerät läuft. „Übung starten“ gibt Töne vor, „Mitschreiben“ nicht.';
     el('err').hidden=true;
+    showMicInfo();
     timer=setInterval(tick,30);
     draw();
   }catch(e){
@@ -582,15 +608,29 @@ const freeRes=[];
    Die Tonhöhenprüfung unten bleibt das eigentliche Tor. */
 const F_TOL=45, F_MIN=300, F_GAP=300;   // Cent, ms, ms
 
+/* Unter dieser Lautstärke berechnet detectPitch keine Tonhöhe. Hält der Pegel
+   sich darunter, aber hörbar darüber, gab es Klang ohne Messung — das wird
+   gemeldet, statt den Ton stillschweigend zu verschlucken. */
+const RMS_GATE=0.012, RMS_HOER=0.0035;
+let quietFrom=null;
+
 function feedFree(t,ac,oct,rms){
   if(ac===null){
-    if(seg && t-seg.last>F_GAP) closeSeg();
+    /* zu leise, aber hörbar: Dauer mitzählen */
+    if(rms>RMS_HOER && rms<RMS_GATE){
+      if(quietFrom===null) quietFrom=t;
+    }else if(quietFrom!==null){
+      if(t-quietFrom>=F_MIN) dropRow('zu leise', (t-quietFrom)/1000, rms, undefined, t);
+      quietFrom=null;
+    }
+    if(seg && t-seg.last>F_GAP) closeSeg('still');
     return;
   }
-  if(seg && t-seg.last>F_GAP) closeSeg();
+  quietFrom=null;
+  if(seg && t-seg.last>F_GAP) closeSeg('still');
   if(!seg){ seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0, oct:oct?1:0, r:[rms]}; return; }
   if(Math.abs(ac-seg.sum/seg.pts.length)>F_TOL){
-    closeSeg();
+    closeSeg('band');
     seg={pts:[{t,c:ac}], last:t, sum:ac, gap:0, breaks:0, oct:oct?1:0, r:[rms]};
     return;
   }
@@ -599,14 +639,61 @@ function feedFree(t,ac,oct,rms){
   seg.pts.push({t,c:ac}); seg.sum+=ac; seg.last=t; seg.r.push(rms); if(oct) seg.oct++;
 }
 
-function closeSeg(){
+function closeSeg(warum){
   const s=seg; seg=null;
   if(!s) return;
   const dur=s.last-s.pts[0].t-s.gap;   // Lücken zählen nicht als Klang
-  if(dur<F_MIN || s.pts.length<8) return;
+  if(dur<F_MIN || s.pts.length<8){
+    const grund = warum==='band' ? 'Tonhöhe verlassen'
+      : s.pts.length<8 ? 'zu wenige Messpunkte' : 'zu kurz';
+    dropRow(grund, dur/1000, median(s.r),
+            Math.round(median(s.pts.map(p=>p.c))/100), s.last);
+    return;
+  }
   const cs=s.pts.map(p=>p.c);
   const med=median(cs), m=Math.round(med/100);
   freeRow(m, med-m*100, sd(cs), dur/1000, s.breaks, s.oct/s.pts.length, dbfs(median(s.r)));
+}
+
+/* Eine verworfene Zeile. Sie wird nicht gezählt und nicht archiviert — sie sagt
+   nur, dass hier Klang war, den die Messung nicht annehmen konnte, und warum.
+   Ein hineingerutschter Ton zerfällt in mehrere Stücke; die gehören zu einem
+   Versuch und werden in einer Zeile zusammengefasst. */
+let dropped=0, lastDrop=null;
+
+const DROP_HILFE={
+  'zu leise':'Unter der Lautstärkeschwelle wird keine Tonhöhe berechnet. '+
+    'Näher ans Mikrofon oder lauter singen.',
+  'Tonhöhe verlassen':'Der Ton hat '+F_TOL+' Cent um seinen eigenen laufenden Mittelwert '+
+    'verlassen und wurde dort zerschnitten; die Stücke waren danach kürzer als '+F_MIN+' ms. '+
+    'Tritt auf, wenn du in den Ton hineinrutschst statt ihn gleich zu treffen.',
+  'zu kurz':'Kürzer als '+F_MIN+' ms, darum nicht gemessen.',
+  'zu wenige Messpunkte':'Weniger als 8 Messrahmen — zu kurz oder zu unruhig für eine Aussage.'
+};
+
+function dropRow(grund, dur, rms, m, t){
+  dropped++;
+  /* an die vorige verworfene Zeile anhängen, wenn es derselbe Versuch ist */
+  if(lastDrop && lastDrop.grund===grund && t!==undefined &&
+     lastDrop.t!==undefined && t-lastDrop.t<500){
+    lastDrop.n++; lastDrop.dur+=dur; lastDrop.t=t;
+    lastDrop.tr.querySelector('.dg').innerHTML=
+      '<em>'+grund+'</em>, in '+lastDrop.n+' Stücke zerfallen';
+    lastDrop.tr.querySelector('.dd').textContent=lastDrop.dur.toFixed(2)+' s';
+    freeSummary();
+    return;
+  }
+  const tr=document.createElement('tr');
+  tr.style.color='var(--fg-dim)';
+  tr.innerHTML='<td>–</td>'+
+    '<td>'+(m!==undefined&&isFinite(m)?noteName(m):'?')+'</td>'+
+    '<td colspan="3" class="dg" title="'+(DROP_HILFE[grund]||'')+'"><em>'+grund+'</em></td>'+
+    '<td class="dd">'+dur.toFixed(2)+' s</td>'+
+    '<td>'+(rms>0?dbfs(rms).toFixed(0):'')+'</td>';
+  el('freeRows').appendChild(tr);
+  tr.scrollIntoView({block:'nearest'});
+  lastDrop={tr, grund, n:1, dur, t};
+  freeSummary();
 }
 
 /* Schritt: Abstand zum vorigen Ton in Halbtönen. Nahe an einem glatten
@@ -620,6 +707,7 @@ function stepText(st){
 }
 
 function freeRow(m,dev,spread,dur,breaks,octShare,db){
+  lastDrop=null;
   const prev=freeRes.length?freeRes[freeRes.length-1]:null;
   const abs=m*100+dev;
   const step=prev?(abs-(prev.m*100+prev.dev))/100:null;
@@ -649,10 +737,14 @@ function freeRow(m,dev,spread,dur,breaks,octShare,db){
 }
 
 function freeSummary(){
-  if(!freeRes.length){ el('freeSummary').innerHTML=''; return; }
+  if(!freeRes.length){
+    el('freeSummary').innerHTML = dropped?stat(dropped,'verworfen'):'';
+    return;
+  }
   const ms=freeRes.map(r=>r.m);
   el('freeSummary').innerHTML=
     stat(freeRes.length,'Töne')+
+    (dropped?stat(dropped,'verworfen'):'')+
     stat(median(freeRes.map(r=>Math.abs(r.dev))).toFixed(0)+' ct','Abweichung (Median)')+
     stat(median(freeRes.map(r=>r.spread)).toFixed(0)+' ct','Streuung (Median)')+
     stat(median(freeRes.map(r=>r.dur)).toFixed(1)+' s','Dauer (Median)')+
@@ -1044,7 +1136,8 @@ el('free').addEventListener('click',()=>{
 });
 
 el('clearFree').addEventListener('click',()=>{
-  freeRes.length=0; el('freeRows').innerHTML=''; el('freeSummary').innerHTML='';
+  freeRes.length=0; dropped=0; quietFrom=null; lastDrop=null;
+  el('freeRows').innerHTML=''; el('freeSummary').innerHTML='';
 });
 
 function summarise(){

@@ -48,12 +48,50 @@ aus der Dauer herausgerechnet und in der Spalte Dauer als `·n` vermerkt. Mindes
 „Zeit bis stabil" ist der Beginn des ersten 300-ms-Fensters, das vollständig innerhalb ±25 Cent um den
 Median liegt. „Sofort getroffen" heißt: unter 500 ms stabil und Median unter 25 Cent Abweichung.
 
+## Verworfene Töne
+
+Drei Tore werfen einen gesungenen Ton weg, und jedes schreibt in der Mitschrift eine graue Zeile
+mit dem Grund — damit „es nimmt es nicht auf" eine lesbare Angabe ist und kein Gefühl bleibt.
+
+| Zeile | heißt | Abhilfe |
+|---|---|---|
+| `zu leise` | unter −38 dBFS, darum wird gar keine Tonhöhe berechnet | näher ans Mikrofon oder lauter |
+| `zu kurz` | kürzer als 300 ms | länger halten |
+| `Tonhöhe verlassen` | 45 Cent um den eigenen laufenden Mittelwert verlassen, dort zerschnitten, Stücke danach unter 300 ms | den Ton gleich auf der Höhe anfangen statt hineinzurutschen |
+| `zu wenige Messpunkte` | unter 8 Messrahmen | länger oder ruhiger |
+
+Ein hineingerutschter Ton zerfällt typisch in drei bis vier Stücke. Die gehören zu einem Versuch
+und stehen in einer Zeile: *Tonhöhe verlassen, in 3 Stücke zerfallen*. Verworfene Zeilen werden
+nicht gezählt und nicht archiviert; die Zusammenfassung nennt nur ihre Anzahl.
+
+## Was das Gerät mit dem Ton macht
+
+Beim Einschalten werden Echosperre, Rauschsperre und Pegelautomatik abgeschaltet verlangt. Ein
+Telefon darf das überstimmen, deshalb steht unter dem Mikrofonknopf, was es tatsächlich übernommen
+hat. Was dort nicht „aus" ist, verändert den Ton, bevor die Messung ihn sieht:
+
+- **Rauschsperre an** — ein gehaltener, gleichmäßiger Ton sieht für so einen Filter wie Störgeräusch aus und kann weggeschnitten werden.
+- **Pegelautomatik an** — macht die Pegelspalte unbrauchbar, und damit jede Aussage, die auf dem Pegel aufbaut.
+- **unbekannt** — das Gerät meldet die Einstellung nicht zurück; dann ist nicht entscheidbar, ob sie wirkt.
+
+## Nachhall
+
+Nachhall hat dieselbe Tonhöhe wie die Stimme und liegt über der Lautstärkeschwelle. Er wird darum
+als Klang mitgezählt, mit zwei Folgen: die **Dauer** wird zu lang gemessen, und die **Streuung wird
+zu gut** — ein Ausklang ist in der Tonhöhe stabiler als eine Stimme und zieht die Zahl nach unten.
+Fällt der Hall unter die Schwelle, ist 300 ms Ruhe und kommt dann noch eine Reflexion, entsteht aus
+einem Ton eine zweite Zeile.
+
+Dagegen hilft nur die Aufnahme, nicht die Rechnung: Mikrofon nah vors Gesicht, damit der
+Direktschall den Hall überdeckt, und für Messreihen keine harten, halligen Räume.
+
 ## Grenzen
 
 - Mikrofonzugriff braucht HTTPS oder localhost.
 - Unter etwa 90 Hz passen nur wenige Schwingungen ins Analysefenster, die Werte werden ungenauer.
 - Beim Gleiten entsteht keine brauchbare Zeile: schnell fällt unter die Mindestdauer, langsam zerfällt in Stufen.
 - Ohne Kopfhörer hört das Mikrofon den Referenzton mit.
+- Die Pegelregel gilt für Halteserien, nicht für Figuren: in einer Figur sind die Töne verschiedene Ziele, ihre Abweichungen tragen die Intervallfehler mit.
 
 ## Wenn das Mikrofon am Telefon nicht geht
 
