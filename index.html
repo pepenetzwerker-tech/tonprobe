@@ -99,6 +99,30 @@ td:first-child,th:first-child{padding-left:0}
 .hint code{font-family:var(--mono);font-size:12px;background:var(--line-soft);padding:1px 5px;border-radius:4px}
 .err{color:var(--off);font-size:13px;line-height:1.55;margin-top:6px}
 .err strong{display:block;margin-bottom:4px}
+
+/* Merkliste: sechs Punkte, jeder mit der Spalte, die ihn nachprüft */
+#merk{padding:0;overflow:hidden}
+#merk>summary{padding:14px 18px;cursor:pointer;font-size:14px;font-weight:600;
+  list-style:none;display:flex;align-items:baseline;gap:10px}
+#merk>summary::-webkit-details-marker{display:none}
+#merk>summary::after{content:"zeigen";margin-left:auto;font-weight:400;
+  font-size:12px;color:var(--fg-dim)}
+#merk[open]>summary::after{content:"ausblenden"}
+#merk[open]>summary{border-bottom:1px solid var(--line-soft)}
+#merk .mbody{padding:4px 18px 16px}
+#merk h4{font-size:12px;font-weight:600;color:var(--fg-dim);margin:14px 0 6px;
+  text-transform:uppercase;letter-spacing:.06em}
+#merk h4:first-child{margin-top:8px}
+#merk ol{margin:0;padding:0;list-style:none;counter-reset:m}
+#merk li{counter-increment:m;position:relative;padding:8px 0 8px 26px;
+  border-top:1px solid var(--line-soft);font-size:14px;line-height:1.5}
+#merk li:first-child{border-top:none}
+#merk li::before{content:counter(m);position:absolute;left:0;top:8px;
+  color:var(--fg-dim);font:500 13px/1.5 var(--mono)}
+#merk .sp{display:block;color:var(--fg-dim);font-size:12.5px;margin-top:2px}
+#merk .sp b{font:500 12.5px var(--mono);color:var(--accent);font-weight:500}
+#merk .warum{font:400 12.5px/1.55 var(--sans);color:var(--fg-dim);
+  margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line-soft)}
 </style>
 </head>
 <body>
@@ -187,6 +211,37 @@ td:first-child,th:first-child{padding-left:0}
   <div class="summary" id="micInfo" hidden></div>
 </section>
 
+<details class="panel" id="merk" open>
+  <summary>Worauf achten</summary>
+  <div class="mbody">
+    <h4>Der einzelne Ton</h4>
+    <ol>
+      <li>Erst hören, dann singen. Den Ton innerlich haben, bevor Luft kommt.
+        <span class="sp">prüft: <b>bis stabil</b> — „sofort getroffen“ heißt, du hattest ihn schon</span></li>
+      <li>Gleich auf der Höhe anfangen, nicht hineinrutschen.
+        <span class="sp">prüft: eine graue Zeile <b>Tonhöhe verlassen</b> heißt, es war ein Rutscher</span></li>
+      <li>Etwa eine Sekunde halten.
+        <span class="sp">prüft: <b>Dauer</b> — darunter ist die Streuung selbst unsicher</span></li>
+      <li>Durchgehend gleich laut. Nicht laut — <em>gleich</em>.
+        <span class="sp">prüft: <b>Pegel</b>, die Spanne über die ganze Serie. Pro dB Spanne etwa 1,8 Cent mehr Streuung</span></li>
+      <li>Nicht nachjustieren, wenn er sitzt.
+        <span class="sp">prüft: <b>Streuung</b> — Ziel um 15</span></li>
+    </ol>
+    <h4>Wenn vorher schon ein Ton war</h4>
+    <ol start="6" style="counter-reset:m 5">
+      <li>Den ersten Ton nicht loslassen, während du den zweiten singst.
+        <span class="sp">prüft: <b>Schritt</b></span></li>
+    </ol>
+    <p class="warum">Warum Punkt 6: der Weg <em>zurück</em> zum Anfangston ist viermal
+    genauer als der Schritt <em>hinauf</em> — nicht weil abwärts leichter ist, sondern
+    weil du zurück einen Ton kennst, den du schon gesungen hast. Hinauf musst du
+    schätzen. Punkt 6 ist also Punkt 1 eine Stufe höher: auch den zweiten Ton hören,
+    bevor du ihn singst. Dann ist der Hinweg eine Reproduktion und keine Schätzung.
+    <br><br>Belegt sind 2, 3, 4 und die Beobachtung zu 6. Punkte 1 und 5 sind plausibel,
+    aber nicht geprüft.</p>
+  </div>
+</details>
+
 <section class="panel" id="resultPanel" hidden>
   <table>
     <thead><tr><th>Ton</th><th>Abw.</th><th>Streuung</th><th>bis stabil</th><th>Dauer</th><th>Pegel dB</th><th></th></tr></thead>
@@ -264,7 +319,7 @@ const signed=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'±')+Math.abs(
 const dbfs=r=>20*Math.log10(Math.max(r,1e-5));
 
 const el=id=>document.getElementById(id);
-el('ver').textContent='Fassung 16.10. 14:23';
+el('ver').textContent='Fassung 16.10. 14:44';
 const fromSel=el('from'), toSel=el('to');
 for(let m=40;m<=60;m++){
   const a=new Option(noteName(m),m), b=new Option(noteName(m),m);
@@ -1155,6 +1210,16 @@ function summarise(){
     stat(median(good.map(r=>r.db).filter(v=>isFinite(v))).toFixed(0)+' dB','Pegel');
 }
 const stat=(v,l)=>'<div class="stat"><b>'+v+'</b><span>'+l+'</span></div>';
+
+/* Merkliste: der Zustand bleibt, damit sie nicht jedes Mal wieder aufgeht,
+   wenn man sie einmal zugeklappt hat. */
+(function(){
+  const d=el('merk'), K='tonprobe.merk.offen';
+  try{ if(localStorage.getItem(K)==='0') d.open=false; }catch(e){}
+  d.addEventListener('toggle',()=>{
+    try{ localStorage.setItem(K, d.open?'1':'0'); }catch(e){}
+  });
+})();
 </script>
 </body>
 </html>

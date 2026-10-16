@@ -48,6 +48,24 @@ aus der Dauer herausgerechnet und in der Spalte Dauer als `·n` vermerkt. Mindes
 „Zeit bis stabil" ist der Beginn des ersten 300-ms-Fensters, das vollständig innerhalb ±25 Cent um den
 Median liegt. „Sofort getroffen" heißt: unter 500 ms stabil und Median unter 25 Cent Abweichung.
 
+## Worauf achten
+
+Die Seite trägt die Merkliste selbst, aufklappbar über der Messung; der Zustand bleibt gespeichert.
+Sechs Punkte, und zu jedem die Spalte, die ihn nachprüft:
+
+| | worauf | prüft |
+|---|---|---|
+| 1 | erst hören, dann singen | bis stabil |
+| 2 | gleich auf der Höhe anfangen, nicht hineinrutschen | graue Zeile *Tonhöhe verlassen* |
+| 3 | etwa eine Sekunde halten | Dauer |
+| 4 | durchgehend gleich laut — nicht laut, *gleich* | Pegel, Spanne über die Serie |
+| 5 | nicht nachjustieren, wenn er sitzt | Streuung, Ziel um 15 |
+| 6 | beim Schritt den ersten Ton nicht loslassen | Schritt |
+
+Punkt 6 folgt aus der Messung: der Weg zurück zum Anfangston ist viermal genauer als der Schritt
+hinauf, weil zurück ein bekannter Ton wartet und hinauf nicht. Punkt 6 ist damit Punkt 1 eine Stufe
+höher. Belegt sind 2, 3, 4 und die Beobachtung zu 6; 1 und 5 sind plausibel, aber nicht geprüft.
+
 ## Verworfene Töne
 
 Drei Tore werfen einen gesungenen Ton weg, und jedes schreibt in der Mitschrift eine graue Zeile
