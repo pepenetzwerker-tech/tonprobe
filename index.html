@@ -319,7 +319,7 @@ const signed=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'±')+Math.abs(
 const dbfs=r=>20*Math.log10(Math.max(r,1e-5));
 
 const el=id=>document.getElementById(id);
-el('ver').textContent='Fassung 16.10. 14:44';
+el('ver').textContent='Fassung 16.10. 14:57';
 const fromSel=el('from'), toSel=el('to');
 for(let m=40;m<=60;m++){
   const a=new Option(noteName(m),m), b=new Option(noteName(m),m);
@@ -726,28 +726,48 @@ const DROP_HILFE={
   'zu wenige Messpunkte':'Weniger als 8 Messrahmen — zu kurz oder zu unruhig für eine Aussage.'
 };
 
+/* Aufeinanderfolgende Verwerfungen gehören zu einem Vorgang — ein hineingerutschter
+   Ton zerfällt in Stücke, und eine laute Umgebung liefert pausenlos Bruchstücke.
+   Beides gehört in EINE Zeile, sonst füllt die Gegend die Liste, bevor gesungen
+   wurde. Ein gemessener Ton beendet die Sammlung (lastDrop=null in freeRow). */
+const DROP_FENSTER=1500;   // ms
+
+function dropText(d){
+  const arten=Object.keys(d.art);
+  if(d.n===1) return '<em>'+arten[0]+'</em>';
+  if(arten.length===1){
+    return arten[0]==='Tonhöhe verlassen'
+      ? '<em>Tonhöhe verlassen</em>, in '+d.n+' Stücke zerfallen'
+      : '<em>'+arten[0]+'</em> · '+d.n+'×';
+  }
+  return d.n+' verworfen — '+arten.map(a=>d.art[a]+'× '+a).join(', ');
+}
+
 function dropRow(grund, dur, rms, m, t){
   dropped++;
-  /* an die vorige verworfene Zeile anhängen, wenn es derselbe Versuch ist */
-  if(lastDrop && lastDrop.grund===grund && t!==undefined &&
-     lastDrop.t!==undefined && t-lastDrop.t<500){
+  if(lastDrop && t!==undefined && lastDrop.t!==undefined && t-lastDrop.t<DROP_FENSTER){
     lastDrop.n++; lastDrop.dur+=dur; lastDrop.t=t;
-    lastDrop.tr.querySelector('.dg').innerHTML=
-      '<em>'+grund+'</em>, in '+lastDrop.n+' Stücke zerfallen';
-    lastDrop.tr.querySelector('.dd').textContent=lastDrop.dur.toFixed(2)+' s';
-    freeSummary();
+    lastDrop.art[grund]=(lastDrop.art[grund]||0)+1;
+    if(lastDrop.m!==m) lastDrop.m=undefined;
+    const tr=lastDrop.tr;
+    tr.querySelector('.dg').innerHTML=dropText(lastDrop);
+    tr.querySelector('.dg').title=Object.keys(lastDrop.art).map(a=>DROP_HILFE[a]||a).join(' ');
+    tr.querySelector('.dn').textContent=
+      (lastDrop.m!==undefined&&isFinite(lastDrop.m))?noteName(lastDrop.m):'–';
+    tr.querySelector('.dd').textContent=lastDrop.dur.toFixed(2)+' s';
+    freeSummary();        /* kein scrollIntoView: die Zeile steht ja schon da */
     return;
   }
   const tr=document.createElement('tr');
   tr.style.color='var(--fg-dim)';
   tr.innerHTML='<td>–</td>'+
-    '<td>'+(m!==undefined&&isFinite(m)?noteName(m):'?')+'</td>'+
+    '<td class="dn">'+(m!==undefined&&isFinite(m)?noteName(m):'–')+'</td>'+
     '<td colspan="3" class="dg" title="'+(DROP_HILFE[grund]||'')+'"><em>'+grund+'</em></td>'+
     '<td class="dd">'+dur.toFixed(2)+' s</td>'+
     '<td>'+(rms>0?dbfs(rms).toFixed(0):'')+'</td>';
   el('freeRows').appendChild(tr);
   tr.scrollIntoView({block:'nearest'});
-  lastDrop={tr, grund, n:1, dur, t};
+  lastDrop={tr, n:1, dur, t, m, art:{[grund]:1}};
   freeSummary();
 }
 
