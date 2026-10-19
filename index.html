@@ -180,6 +180,12 @@ td:first-child,th:first-child{padding-left:0}
         <option value="20">20</option>
       </select>
     </label>
+    <label>Richtung
+      <select id="dir">
+        <option value="up" selected>hinauf</option>
+        <option value="updown">hinauf und zurück</option>
+      </select>
+    </label>
     <label>Pause
       <select id="gap">
         <option value="2">2 s</option>
@@ -320,13 +326,15 @@ const signed=v=>{const r=Math.round(v);return (r>0?'+':r<0?'−':'±')+Math.abs(
 const dbfs=r=>20*Math.log10(Math.max(r,1e-5));
 
 const el=id=>document.getElementById(id);
-el('ver').textContent='Fassung 19.10. 23:38';
+el('ver').textContent='Fassung 19.10. 23:48';
 const fromSel=el('from'), toSel=el('to');
 for(let m=40;m<=60;m++){
   const a=new Option(noteName(m),m), b=new Option(noteName(m),m);
   fromSel.add(a); toSel.add(b);
 }
-fromSel.value=45; toSel.value=53;           // A2 bis F3
+/* Die Kursfiguren liegen zwischen D3 und F♯4 (51 Figuren, 19.10. gemessen).
+   D3 bis A3 als Vorauswahl: die Gipfel bleiben damit unter E4, Peters Decke. */
+fromSel.value=50; toSel.value=57;           // D3 bis A3
 
 let ac=null, analyser=null, buf=null, stream=null;
 let running=false, timer=null;
@@ -838,8 +846,8 @@ function freeSummary(){
    sehen dann brauchbar aus, obwohl die Zuordnung Unsinn ist. */
 const KMIN=5, CAP=700;
 
-function dtwPath(obs,tgt,off){
-  const N=obs.length, M=tgt.length, K=KMIN, INF=Infinity, sz=M*K;
+function dtwPath(obs,tgt,off,kmin){
+  const N=obs.length, M=tgt.length, K=kmin||KMIN, INF=Infinity, sz=M*K;
   let prev=new Float64Array(sz).fill(INF);
   const back=[];
   const c=(i,j)=>Math.min(Math.abs(obs[i].ac-off-tgt[j]),CAP);
@@ -877,8 +885,19 @@ function dtwPath(obs,tgt,off){
    erzeugen. Die unabhängige Segmentierung ist der Zeuge dagegen — stimmt die
    Zahl der Töne nicht, oder stimmen bei gleicher Zahl die Schritte nicht,
    bedeuten die Einzelwerte nichts. */
+/* Die Mindestlänge eines Tons kann nicht fest sein: eine Figur aus drei langen
+   Tönen und eine aus neun schnellen brauchen verschiedene Maße. Im Durchsingen
+   ist die Tonzahl bekannt, also folgt die Mindestlänge daraus — ein Drittel der
+   mittleren Tonlänge, begrenzt nach unten und oben. Am 19.10. gemessen: die
+   Töne der a-Figur dauern im Kurs 0,19 bis 0,35 s, bei fester Schwelle von
+   fünf Rahmen fällt davon die Hälfte heraus. */
+function minRahmen(obs,tgt){
+  if(!obs.length||!tgt.length) return KMIN;
+  return Math.max(3, Math.min(8, Math.round(obs.length/tgt.length*0.35)));
+}
+
 function stepCheck(obs,tgt){
-  const own=ownSteps(obs);
+  const own=ownSteps(obs,minRahmen(obs,tgt));
   /* Genau so viele Töne wie Sollnoten. Eine Toleranz von einem Ton würde die
      Formprüfung aushebeln — dann liefe gerade der Fall ungeprüft durch, für den
      sie gebaut ist. Lieber einmal zu oft 'unsicher' als einmal falsch bestätigt. */
@@ -898,9 +917,10 @@ function stepCheck(obs,tgt){
 }
 
 function alignLine(obs,tgt){
+  const kmin=minRahmen(obs,tgt);
   let best=null;
   for(let off=-350;off<=350;off+=10){
-    const r=dtwPath(obs,tgt,off);
+    const r=dtwPath(obs,tgt,off,kmin);
     if(r && (!best || r.cost<best.cost)) best={off,cost:r.cost,seg:r.seg};
   }
   if(!best) return {failed:true};
@@ -912,7 +932,7 @@ function alignLine(obs,tgt){
   });
   const rel=notes.map(n=>n.rel);
   const rms=Math.sqrt(rel.reduce((a,v)=>a+v*v,0)/rel.length);
-  const forced=notes.filter(n=>n.n<=KMIN).length;
+  const forced=notes.filter(n=>n.n<=kmin).length;
   /* Ein Abschnitt mit grosser Streuung ist kein gehaltener Ton, sondern ein
      Sammelbecken: dort hat der Abgleich mehrere Tonhoehen zusammengeworfen.
      Der Median der Abweichungen kann dabei zufaellig passen. */
@@ -924,16 +944,17 @@ function alignLine(obs,tgt){
 
 /* Was tatsächlich gesungen wurde, unabhängig von der Vorgabe —
    die Rückfallebene, wenn der Abgleich nicht greift. */
-function ownSteps(obs){
+function ownSteps(obs,minN){
+  const mn=minN||5;
   const out=[]; let cur=null;
   for(const p of obs){
     if(!cur){ cur={s:p.ac,n:1,t0:p.t,t1:p.t}; continue; }
     if(Math.abs(p.ac-cur.s/cur.n)>45){
-      if(cur.n>=5) out.push({m:cur.s/cur.n, dur:(cur.t1-cur.t0)/1000});
+      if(cur.n>=mn) out.push({m:cur.s/cur.n, dur:(cur.t1-cur.t0)/1000});
       cur={s:p.ac,n:1,t0:p.t,t1:p.t};
     }else{ cur.s+=p.ac; cur.n++; cur.t1=p.t; }
   }
-  if(cur && cur.n>=5) out.push({m:cur.s/cur.n, dur:(cur.t1-cur.t0)/1000});
+  if(cur && cur.n>=mn) out.push({m:cur.s/cur.n, dur:(cur.t1-cur.t0)/1000});
   return out;
 }
 
@@ -982,9 +1003,16 @@ async function runLine(){
   const degrees=el('shape').value.split(',').map(Number);
   const lo=+fromSel.value, hi=+toSel.value;
   const reps=+el('reps').value;
+  /* Das Set des Kurses: halbtonweise hinauf und wieder herunter. Am 19.10. in
+     der i-Aufnahme gemessen — die Grundtöne steigen F3 F♯3 G3 und sinken danach
+     wieder. Der Gipfelton kommt nur einmal, nicht zweimal. */
+  const stufen=[];
+  for(let b2=Math.min(lo,hi); b2<=Math.max(lo,hi); b2++) stufen.push(b2);
+  if(el('dir').value==='updown')
+    for(let k=stufen.length-2;k>=0;k--) stufen.push(stufen[k]);
   for(let rep=1; rep<=reps && running; rep++){
   const zz = reps>1 ? ' · '+rep+' von '+reps : '';
-  for(let base=Math.min(lo,hi); base<=Math.max(lo,hi); base++){
+  for(const base of stufen){
     if(!running) break;
     const tgt=degrees.map(d=>(base+d)*100);
     el('lineRows').innerHTML=''; el('lineSummary').innerHTML='';

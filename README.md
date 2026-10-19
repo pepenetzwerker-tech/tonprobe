@@ -48,6 +48,34 @@ aus der Dauer herausgerechnet und in der Spalte Dauer als `·n` vermerkt. Mindes
 „Zeit bis stabil" ist der Beginn des ersten 300-ms-Fensters, das vollständig innerhalb ±25 Cent um den
 Median liegt. „Sofort getroffen" heißt: unter 500 ms stabil und Median unter 25 Cent Abweichung.
 
+## Die Kursfiguren
+
+Am 19.10. aus Aufnahmen der Kursstunde gemessen, nicht mehr aus eigenen Versuchen erschlossen:
+
+| | Figur | Stand |
+|---|---|---|
+| **i** | 1–2–1, Ganzton | belegt, neun Figuren, Mittel +1,92 HT |
+| **u** | 1–3–5–3–1, Dreiklang | belegt, fünf Figuren auf fünf Grundtönen |
+| **a** | neun Töne, Bogen hinauf und symmetrisch zurück | Gestalt belegt, Schrittgrößen offen |
+
+Alle drei kehren zum Anfangston zurück. Die Figuren laufen als **Set**: halbtonweise hinauf und
+wieder herunter — dafür ist die Einstellung *Richtung*. Der Arbeitsbereich des Kurses liegt
+zwischen D3 und F♯4, darum steht die Vorauswahl auf D3 bis A3.
+
+Zwei frühere Bestimmungen waren falsch, beide zu kurz: das u galt als Quinte 1–5–1 (die äußere
+Spanne, die beiden Terztöne fehlten), das a als sieben Töne statt neun. Beide Male hatte die
+Plateauerkennung schnelle Durchgangstöne verschluckt, ohne eine Lücke zu hinterlassen. Daraus die
+Regel: **eine gemessene Spanne ist kein gemessener Weg** — eine Figur gilt erst als bestimmt, wenn
+die Zahl der Töne unabhängig gesichert ist.
+
+## Mindestlänge eines Tons
+
+Im Mitschreiben fest bei 300 ms. Im Durchsingen ist die Tonzahl vorher bekannt, also folgt die
+Mindestlänge daraus: ein Drittel der mittleren Tonlänge, begrenzt auf 3 bis 8 Messrahmen. Der Grund
+steht in den Kursaufnahmen — die Töne der a-Figur dauern dort 0,19 bis 0,35 s, und eine feste
+Schwelle wirft bei neun schnellen Tönen die Hälfte heraus. Geprüft an einer künstlichen a-Figur mit
+0,18 s je Ton: alle neun Töne werden gefunden, Abweichung unter 2 Cent, Urteil „folgt der Figur".
+
 ## Worauf achten
 
 Die Seite trägt die Merkliste selbst, aufklappbar über der Messung; der Zustand bleibt gespeichert.
