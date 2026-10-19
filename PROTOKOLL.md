@@ -126,7 +126,7 @@ Töne einer Aufnahme tragen dieselbe Verstimmung.
 |---|---|---|---|
 | **i = Ganzton 1–2–1** | G4 393,09 → A4 441,14 → G4 393,18, also **+1,99 / −1,99** | i-Aufnahme 2.9., bei 81,7 s | A = 440,7 Hz |
 | **u = Dreiklang 1–3–5–3–1** | fünf Figuren der u-Aufnahme vom 19.10.: Mittel **0 / +3,62 / +6,94 / +3,98 / +0,10** Halbtöne, Quinte mit 0,29 HT Streuung über fünf Grundtöne | u-Aufnahme 19.10., bei 4,7 / 80,5 / 103,9 / 108,5 / 113,1 s | — |
-| **a = 1–2–3–4–5–4–3** | G♯3 → A♯3 → C4 → C♯4 → D♯4 → C♯4 → C4, danach zurück auf G♯3 | Aufnahme 19.10., bei 84,5 s | A = 440,3 Hz |
+| **a = neun Töne, hinauf und symmetrisch zurück** | Gestalt belegt; Schrittgrößen offen, siehe unten | Aufnahmen 19.10., 84,5 s und 229,0 s | A = 440,3 Hz |
 
 **Das a ist seit 19.10. belegt.** Peter hat die Kursleiterin am Ende der Stunde direkt gefragt und
 die Antwort aufgenommen. Die Figur bei 84,5 s trifft die Tonleiterstufen auf höchstens 34 Cent:
@@ -165,6 +165,24 @@ ab; dazu klingt ein tiefer, gehaltener Klavierton in den ersten Zehntelsekunden 
 Abfall von 9 dB über 0,8 s ist für ein G♯3 normal und war kein Gegenbeweis. **Die Stimmungskohärenz
 bleibt der tragfähige Test, die Hüllkurve ist es nicht** — und die Stimmungsprobe stand schon im
 Protokoll, bevor ich sie zugunsten einer schlechteren übergangen habe.
+
+**Nachtrag 19.10., 23:40 — das a hat neun Töne, nicht sieben.** Von Peter berichtigt: i-i-a-a-a-a-a-a-a.
+Die Gestalt ist damit vier Schritte hinauf zum Gipfel und symmetrisch zurück. Die Schrittgrößen sind
+offen, zwei saubere Stellen widersprechen sich um einen Halbton:
+
+| Quelle | 1 | 2 | 3 | 4 | 5 | 4 | 3 | 2 | 1 |
+|---|---|---|---|---|---|---|---|---|---|
+| Kursaufnahme, 84,5 s (Klavier) | 0 | +2,00 | +4,09 | +4,88 | +6,66 | +4,99 | +4,10 | — | −0,06 |
+| a-Aufnahme, 229,0 s (vollständig) | 0 | +1,99 | +4,32 | +5,90 | +8,07 | +6,57 | +4,09 | +2,06 | +0,73 |
+
+Die erste passt zur Durtonleiter (0-2-4-5-7, quadr. Mittel 75 ct), die zweite zu lauter Ganztönen
+(0-2-4-6-8, 33 ct). Die erste ist sauberer, die zweite vollständig. Unentschieden.
+
+**Drei Figurbestimmungen, drei Mal zu früh für richtig erklärt** — i (hielt), u (Spanne statt Weg,
+zwei Töne fehlten), a (sieben statt neun, zwei Töne fehlten). Das Muster ist nicht Pech, sondern
+Methode: eine Figur gilt erst als bestimmt, wenn die Zahl der Töne unabhängig gesichert ist. Die
+Plateauerkennung verschluckt systematisch die schnellen Durchgangstöne, und was sie verschluckt,
+fehlt dann in der Figur, ohne eine Lücke zu hinterlassen.
 
 **Die feinen Centwerte der Figur sind nicht die des Klaviers.** Ein Instrument auf 440,3 Hz müsste
 überall etwa +1 Cent zeigen; die Figur bei 84,5 s zeigt +5, +5, +14, −7, −29, +4, +14, −1. Die
