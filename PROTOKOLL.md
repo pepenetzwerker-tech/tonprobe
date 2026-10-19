@@ -126,7 +126,7 @@ Töne einer Aufnahme tragen dieselbe Verstimmung.
 |---|---|---|---|
 | **i = Ganzton 1–2–1** | G4 393,09 → A4 441,14 → G4 393,18, also **+1,99 / −1,99** | i-Aufnahme 2.9., bei 81,7 s | A = 440,7 Hz |
 | **u = Quinte 1–5–1** | G3 196,74 → D4 293,39 → G3 196,56, also **+6,92 / −6,93**; dazu C3 130,96 → G3 196,45 = **+7,02** bei 149,4 s | u-Aufnahme 16.9., bei 90,1 s | A = 441,0 Hz |
-| **a = 1–2–3–4–5–4–3** | G♯3 → A♯3 → C4 → C♯4 → D♯4 → C♯4 → C4, danach zurück auf G♯3 | Aufnahme 19.10., bei 84,5 s | kein Klavier |
+| **a = 1–2–3–4–5–4–3** | G♯3 → A♯3 → C4 → C♯4 → D♯4 → C♯4 → C4, danach zurück auf G♯3 | Aufnahme 19.10., bei 84,5 s | A = 440,3 Hz |
 
 **Das a ist seit 19.10. belegt.** Peter hat die Kursleiterin am Ende der Stunde direkt gefragt und
 die Antwort aufgenommen. Die Figur bei 84,5 s trifft die Tonleiterstufen auf höchstens 34 Cent:
@@ -150,16 +150,32 @@ Weitere Figuren derselben Aufnahme, alle auf demselben Grundton G♯3 (208 Hz):
 | 106,9 s | C4 D♯4 D♯4 D♯4 C4 | 3–5–5–5–3 |
 | 116,9 s | C4 D♯4 C4 | 3–5–3 |
 
-**In dieser Aufnahme ist kein Klavier.** Keiner der Töne hat eine Anschlagshüllkurve — kein scharfer
-Einsatz, kein monotoner Abfall. Die Trennung nach Stabilität und Abfall meldete zunächst zwölf
-Klaviertöne und eine Stimmung von A = 441,0 Hz; beides war falsch. Kurze, ruhig gehaltene
-Gesangstöne bestehen den Stabilitätstest. **Die Hüllkurve ist der verlässlichere Zeuge als die
-Streuung**, und sie gehört in die Trennung aufgenommen.
+Die Figuren sind **gespielt**, nicht gesungen — von Peter bestätigt, der dabei war. Damit ist diese
+Aufnahme die erste, in der die Vorgabe direkt vorliegt statt aus gesungenen Versuchen erschlossen
+zu werden.
+
+Gegenprobe über die Stimmung: fünfzehn Töne, über zwei Minuten verteilt, liegen innerhalb von
+±3,2 Cent um dieselbe Verstimmung, **A = 440,3 Hz**. Das deckt sich mit der a-Aufnahme vom 16.9.
+(440,4 Hz) und liegt unter den Werten der i- und u-Aufnahme (440,7 und 441,0).
+
+**Eine falsche Widerlegung, als Warnung notiert.** Ich hatte behauptet, in der Aufnahme sei kein
+Klavier, weil keiner der Töne eine Anschlagshüllkurve zeige. Der Test war schlecht gebaut: der
+Aufnahme-App am Telefon steht eine Pegelautomatik frei, und die flacht genau die Anschlag-Abfall-Form
+ab; dazu klingt ein tiefer, gehaltener Klavierton in den ersten Zehntelsekunden ohnehin kaum ab. Ein
+Abfall von 9 dB über 0,8 s ist für ein G♯3 normal und war kein Gegenbeweis. **Die Stimmungskohärenz
+bleibt der tragfähige Test, die Hüllkurve ist es nicht** — und die Stimmungsprobe stand schon im
+Protokoll, bevor ich sie zugunsten einer schlechteren übergangen habe.
+
+**Die feinen Centwerte der Figur sind nicht die des Klaviers.** Ein Instrument auf 440,3 Hz müsste
+überall etwa +1 Cent zeigen; die Figur bei 84,5 s zeigt +5, +5, +14, −7, −29, +4, +14, −1. Die
+Ausreißer sind Störung durch gleichzeitiges Sprechen und Nachhall, nicht Verstimmung. Die
+Tonidentitäten und damit die Stufenfolge stehen trotzdem fest — eine Störung von 30 Cent verschiebt
+keinen Halbton. Für die feine Messung braucht es einen Schnitt, in dem nur gespielt wird.
 
 Die Sprecher trennen sich über die Tonlage sauber: eine Stimme liegt bei 105 bis 145 Hz (Peter,
-Sprechstimme 105 Hz gemessen), die zweite bei 200 bis 310 Hz. Alle Figuren liegen in der zweiten.
-Ein Versuch, das über die Formanten zu bestätigen, ist gescheitert — bei 260 Hz Grundton rastet die
-LPC auf die Obertöne, und die verglichenen Abschnitte trugen verschiedene Vokale.
+Sprechstimme 105 Hz gemessen), die zweite bei 200 bis 310 Hz. Ein Versuch, das über die Formanten
+zu bestätigen, ist gescheitert — bei 260 Hz Grundton rastet die LPC auf die Obertöne, und die
+verglichenen Abschnitte trugen verschiedene Vokale.
 
 Die gesungenen Figurspannen decken sich mit den gespielten: beim i 1,8 bis 3,7 Halbtöne, beim u
 6,6 bis 8,0.
