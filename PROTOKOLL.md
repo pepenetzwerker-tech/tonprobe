@@ -126,13 +126,40 @@ Töne einer Aufnahme tragen dieselbe Verstimmung.
 |---|---|---|---|
 | **i = Ganzton 1–2–1** | G4 393,09 → A4 441,14 → G4 393,18, also **+1,99 / −1,99** | i-Aufnahme 2.9., bei 81,7 s | A = 440,7 Hz |
 | **u = Quinte 1–5–1** | G3 196,74 → D4 293,39 → G3 196,56, also **+6,92 / −6,93**; dazu C3 130,96 → G3 196,45 = **+7,02** bei 149,4 s | u-Aufnahme 16.9., bei 90,1 s | A = 441,0 Hz |
-| **a** | nicht eindeutig | a-Aufnahme 16.9. | A = 440,4 Hz |
+| **a = 1–2–3–4–5–4–3** | G♯3 → A♯3 → C4 → C♯4 → D♯4 → C♯4 → C4, danach zurück auf G♯3 | Aufnahme 19.10., bei 84,5 s | kein Klavier |
 
-Beim a finden sich mehrere Bewegungen: zwei Ganztöne abwärts (F♯3–E3–D3 bei 70,7 s), eine große
-Terz abwärts und zurück (bei 260,1 s), kleine Terz plus Quarte (bei 220,0 s). Nach mündlicher
-Beschreibung sind es sieben Töne, die ersten zwei auf i als Anlauf, Gipfel an fünfter Stelle, die
-letzten zwei abfallend. Der Versuch, das aus den gesungenen Figuren zu rekonstruieren, ist
-gescheitert — bei sieben Tönen in einer Linie findet die Plateauerkennung keine sieben Plateaus.
+**Das a ist seit 19.10. belegt.** Peter hat die Kursleiterin am Ende der Stunde direkt gefragt und
+die Antwort aufgenommen. Die Figur bei 84,5 s trifft die Tonleiterstufen auf höchstens 34 Cent:
+
+| # | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|
+| Stufe | 1 | 2 | 3 | 4 | 5 | 4 | 3 |
+| gemessen ab Grundton | +0,00 | +2,00 | +4,09 | +4,88 | +6,66 | +4,99 | +4,09 |
+| Fehler | 0 | 0 | +9 | −12 | −34 | −1 | +9 |
+
+Das deckt sich Punkt für Punkt mit der mündlichen Beschreibung: sieben Töne, die ersten zwei auf i
+als Anlauf, der dritte a an fünfter Stelle als Gipfel (Stufe 5), die letzten zwei abfallend. Die
+Figur entspricht genau der Auswahl *Bogen · 1–2–3–4–5–4–3* im Werkzeug — die Vermutung war richtig.
+
+Weitere Figuren derselben Aufnahme, alle auf demselben Grundton G♯3 (208 Hz):
+
+| Zeit | Folge | Stufen |
+|---|---|---|
+| 110,3 s | G♯3 G♯3 C4 D♯4 D♯4 C4 G♯3 | 1–1–3–5–5–3–1 |
+| 125,8 s | G♯3 → D♯4 → G♯3 | 1–5–1, bestätigt die Quinte |
+| 106,9 s | C4 D♯4 D♯4 D♯4 C4 | 3–5–5–5–3 |
+| 116,9 s | C4 D♯4 C4 | 3–5–3 |
+
+**In dieser Aufnahme ist kein Klavier.** Keiner der Töne hat eine Anschlagshüllkurve — kein scharfer
+Einsatz, kein monotoner Abfall. Die Trennung nach Stabilität und Abfall meldete zunächst zwölf
+Klaviertöne und eine Stimmung von A = 441,0 Hz; beides war falsch. Kurze, ruhig gehaltene
+Gesangstöne bestehen den Stabilitätstest. **Die Hüllkurve ist der verlässlichere Zeuge als die
+Streuung**, und sie gehört in die Trennung aufgenommen.
+
+Die Sprecher trennen sich über die Tonlage sauber: eine Stimme liegt bei 105 bis 145 Hz (Peter,
+Sprechstimme 105 Hz gemessen), die zweite bei 200 bis 310 Hz. Alle Figuren liegen in der zweiten.
+Ein Versuch, das über die Formanten zu bestätigen, ist gescheitert — bei 260 Hz Grundton rastet die
+LPC auf die Obertöne, und die verglichenen Abschnitte trugen verschiedene Vokale.
 
 Die gesungenen Figurspannen decken sich mit den gespielten: beim i 1,8 bis 3,7 Halbtöne, beim u
 6,6 bis 8,0.
