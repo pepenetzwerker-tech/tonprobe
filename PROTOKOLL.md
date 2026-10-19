@@ -125,7 +125,7 @@ Töne einer Aufnahme tragen dieselbe Verstimmung.
 | Figur | gemessen | Quelle | Klavierstimmung |
 |---|---|---|---|
 | **i = Ganzton 1–2–1** | G4 393,09 → A4 441,14 → G4 393,18, also **+1,99 / −1,99** | i-Aufnahme 2.9., bei 81,7 s | A = 440,7 Hz |
-| **u = Quinte 1–5–1** | G3 196,74 → D4 293,39 → G3 196,56, also **+6,92 / −6,93**; dazu C3 130,96 → G3 196,45 = **+7,02** bei 149,4 s | u-Aufnahme 16.9., bei 90,1 s | A = 441,0 Hz |
+| **u = Dreiklang 1–3–5–3–1** | fünf Figuren der u-Aufnahme vom 19.10.: Mittel **0 / +3,62 / +6,94 / +3,98 / +0,10** Halbtöne, Quinte mit 0,29 HT Streuung über fünf Grundtöne | u-Aufnahme 19.10., bei 4,7 / 80,5 / 103,9 / 108,5 / 113,1 s | — |
 | **a = 1–2–3–4–5–4–3** | G♯3 → A♯3 → C4 → C♯4 → D♯4 → C♯4 → C4, danach zurück auf G♯3 | Aufnahme 19.10., bei 84,5 s | A = 440,3 Hz |
 
 **Das a ist seit 19.10. belegt.** Peter hat die Kursleiterin am Ende der Stunde direkt gefragt und
@@ -179,6 +179,17 @@ verglichenen Abschnitte trugen verschiedene Vokale.
 
 Die gesungenen Figurspannen decken sich mit den gespielten: beim i 1,8 bis 3,7 Halbtöne, beim u
 6,6 bis 8,0.
+
+**Korrektur vom 19.10.: das u ist ein Dreiklang, keine Quinte.** Die Messung vom 16.9. hatte nur die
+äußere Spanne erfasst (+6,92/−6,93) — die beiden Terztöne in der Mitte hat die Plateauerkennung
+damals übersehen. Peters Erinnerung an „eine Terz hinauf" war richtig und bezog sich auf den ersten
+Schritt. Daraus die Lehre: **eine gemessene Spanne ist kein gemessener Weg.** Eine Figur gilt erst
+als bestimmt, wenn die Zahl der Töne gesichert ist, nicht nur Anfang, Gipfel und Ende.
+
+Die i-Aufnahme vom 19.10. belegt das i nochmals mit neun Ganzton-Figuren, Mittel +1,92 Halbtöne.
+Sie zeigt auch das **Set**: die Grundtöne steigen halbtonweise F3 → F♯3 → G3 und sinken danach
+wieder, F♯3 → F3 → D♯3 → D3. Das deckt sich mit Peters Beschreibung, etwa fünf Figuren hinauf und
+wieder herunter.
 
 ---
 
