@@ -110,6 +110,12 @@ Ein hineingerutschter Ton zerfällt typisch in drei bis vier Stücke. Die gehör
 und stehen in einer Zeile: *Tonhöhe verlassen, in 3 Stücke zerfallen*. Verworfene Zeilen werden
 nicht gezählt und nicht archiviert; die Zusammenfassung nennt nur ihre Anzahl.
 
+**Standardmäßig sind sie ausgeblendet.** Beim Singen stören sie, hinterher erklären sie, warum ein
+Ton fehlt — der Schalter *verworfene Töne zeigen* über der Liste blendet sie ein und wieder aus,
+rückwirkend für die ganze Sitzung. Sie werden nur versteckt, nie gelöscht, und die Anzahl steht in
+der Zusammenfassung auch dann, wenn die Zeilen aus sind. Der Zustand des Schalters bleibt
+gespeichert.
+
 ## Was das Gerät mit dem Ton macht
 
 Beim Einschalten werden Echosperre, Rauschsperre und Pegelautomatik abgeschaltet verlangt. Ein
